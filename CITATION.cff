@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Reynaert"
+  given-names: "Simon"
+  orcid: "https://orcid.org/0000-0003-4690-0955"
+title: "iEcology-test"
+version: 1.0.0
+url: "https://github.com/Simon-Reynaert/iEcology-test"
