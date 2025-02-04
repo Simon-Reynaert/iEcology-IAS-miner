@@ -20,7 +20,7 @@ sitelinks_df = pd.read_csv('species_wikipedia_sitelinks.csv')
 # Wikimedia API base URL for per-article pageviews
 BASE_URL = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article"
 
-# Custom User-Agent string (REPLACE with your details)
+# Custom User-Agent string
 HEADERS = {
     "User-Agent": "iEcology_OneSTOP_EUProject/1.0 (simon.reynaert@plantentuinmeise.be)"
 }
@@ -54,6 +54,8 @@ def fetch_daily_pageviews(language, title):
 
 # Fetch pageviews and compute statistics
 species_pageviews = []
+date_columns = [(last_day_of_last_month - timedelta(days=i)).strftime("%Y%m%d") for i in range(last_day_of_last_month.day)][::-1]  # Ensure chronological order
+
 for _, row in sitelinks_df.iterrows():
     language = row['Language']
     title = row['Wikipedia Title'].replace(' ', '_')  # Ensure URL-safe titles
@@ -72,13 +74,29 @@ for _, row in sitelinks_df.iterrows():
             "Mean Last Week": None,
             "Status": "No data"
         })
+        for date in date_columns:
+            species_pageviews[-1][date] = None
         continue
 
-    # Convert to sorted list of pageviews
-    pageviews_list = [daily_pageviews.get((last_day_of_last_month - timedelta(days=i)).strftime("%Y%m%d"), 0) for i in range(last_day_of_last_month.day)]
-    pageviews_list.reverse()  # Ensure chronological order
+    # Add daily pageviews for each date in order
+    pageviews_list = [daily_pageviews.get(date, 0) for date in date_columns]
+    
+    # Store daily views in the species_pageviews
+    species_pageviews.append({
+        "Scientific Name": scientific_name,
+        "Language": language,
+        "Wikipedia Title": title,
+        "Mean First 3 Weeks": None,
+        "Standard Error First 3 Weeks": None,
+        "Mean Last Week": None,
+        "Status": None,
+    })
 
-    # Split into time periods
+    # Add the pageviews for each day to the row
+    for i, date in enumerate(date_columns):
+        species_pageviews[-1][date] = pageviews_list[i]
+
+    # Split into time periods for analysis
     first_three_weeks = pageviews_list[:21]
     last_week = pageviews_list[21:]
 
@@ -87,19 +105,19 @@ for _, row in sitelinks_df.iterrows():
     se_3w = np.std(first_three_weeks, ddof=1) / np.sqrt(len(first_three_weeks)) if first_three_weeks else 0
     mean_last_week = np.mean(last_week) if last_week else 0
 
-    # Determine if pageviews are increasing
-    status = "Increasing" if mean_last_week > (mean_3w + se_3w) else "No change"
+    # Determine if pageviews are increasing or decreasing
+    if mean_last_week > (mean_3w + se_3w):
+        status = "Increasing"
+    elif mean_last_week < (mean_3w - se_3w):
+        status = "Decreasing"
+    else:
+        status = "No change"
 
-    # Store results
-    species_pageviews.append({
-        "Scientific Name": scientific_name,
-        "Language": language,
-        "Wikipedia Title": title,
-        "Mean First 3 Weeks": round(mean_3w, 2),
-        "Standard Error First 3 Weeks": round(se_3w, 2),
-        "Mean Last Week": round(mean_last_week, 2),
-        "Status": status
-    })
+    # Update the row with the statistics
+    species_pageviews[-1]["Mean First 3 Weeks"] = round(mean_3w, 2)
+    species_pageviews[-1]["Standard Error First 3 Weeks"] = round(se_3w, 2)
+    species_pageviews[-1]["Mean Last Week"] = round(mean_last_week, 2)
+    species_pageviews[-1]["Status"] = status
 
     # Add delay to avoid rate limiting
     time.sleep(1)
