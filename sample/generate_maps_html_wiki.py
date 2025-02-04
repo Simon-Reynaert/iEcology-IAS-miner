@@ -1,3 +1,23 @@
+import sys
+import subprocess
+import importlib
+
+# List of required libraries
+required_libraries = ["folium", "pandas", "geopandas","cartopy","shutil","zipfile","requests","os"]
+
+# Function to check and install missing libraries
+def install_missing_libraries():
+    for lib in required_libraries:
+        try:
+            importlib.import_module(lib)  # Try importing the module
+        except ImportError:
+            print(f"{lib} not found. Installing...")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", lib])
+
+# Run the installation check
+install_missing_libraries()
+
+# Now, safely import the required libraries
 import os
 import folium
 import pandas as pd
@@ -9,7 +29,7 @@ if not os.path.exists(map_dir):
     os.makedirs(map_dir)
 
 # Load the species data
-df = pd.read_csv("species_pageviews_analysis_2024_12.csv")
+df = pd.read_csv("species_pageviews_analysis_2025_01.csv")
 
 # Define language to country mapping (for EU countries)
 language_to_country = {
@@ -21,9 +41,55 @@ language_to_country = {
     "en": "Ireland", "ga": "Ireland", "cy": "Cyprus"
 }
 
-# Load the Natural Earth shapefile for Europe (update the path to where you store it)
-shapefile_path = "natural_earth/ne_110m_admin_0_countries.shp"
+import os
+import requests
+import zipfile
+import geopandas as gpd
+
+# Define directory and file names
+shapefile_dir = "natural_earth"
+shapefile_name = "ne_110m_admin_0_countries"
+zip_path = os.path.join(shapefile_dir, f"{shapefile_name}.zip")
+shapefile_path = os.path.join(shapefile_dir, f"{shapefile_name}.shp")
+
+# Ensure the directory exists
+os.makedirs(shapefile_dir, exist_ok=True)
+
+# URL for the Natural Earth dataset
+url = f"https://naciscdn.org/naturalearth/110m/cultural/{shapefile_name}.zip"
+
+# Step 1: Download the dataset if it doesn't exist
+if not os.path.exists(shapefile_path):
+    print("Downloading Natural Earth dataset...")
+    
+    response = requests.get(url, stream=True)
+    
+    if response.status_code == 200:
+        with open(zip_path, "wb") as file:
+            file.write(response.content)
+        print("Download complete.")
+        
+        # Step 2: Extract the ZIP file
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            zip_ref.extractall(shapefile_dir)
+        print("Extraction complete.")
+        
+        # Step 3: Remove ZIP file after extraction
+        os.remove(zip_path)
+    else:
+        print("Failed to download the file. Check the URL or your internet connection.")
+
+# Step 4: Verify that all necessary files exist
+required_extensions = [".shp", ".shx", ".dbf", ".prj"]
+missing_files = [ext for ext in required_extensions if not os.path.exists(os.path.join(shapefile_dir, shapefile_name + ext))]
+
+if missing_files:
+    raise FileNotFoundError(f"Missing required shapefile components: {missing_files}")
+
+# Step 5: Load the shapefile
 world = gpd.read_file(shapefile_path)
+
+print("Shapefile loaded successfully!")
 
 # Filter out only the countries in Europe
 europe = world[world["CONTINENT"] == "Europe"]
@@ -51,6 +117,32 @@ def generate_folium_map(species_df, language_to_country):
                         'fillOpacity': 0.7
                     }
                 ).add_to(m)
+
+    legend_html = '''
+    <div style="
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        background: white;
+        padding: 10px;
+        border-radius: 5px;
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        z-index: 9999;
+    ">
+        <div style="display: flex; align-items: center; margin-bottom: 5px;">
+            <span style="width: 20px; height: 20px; background-color: red; border: 1px solid #000; display: inline-block; margin-right: 8px;"></span>
+            Increase in wiki pageviews last month
+        </div>
+        <div style="display: flex; align-items: center;">
+            <span style="width: 20px; height: 20px; background-color: gray; border: 1px solid #000; display: inline-block; margin-right: 8px;"></span>
+            No change in wiki pageviews last month
+        </div>
+    </div>
+    '''
+
+    m.get_root().html.add_child(folium.Element(legend_html))
 
     # Add zoom controls
     folium.LayerControl().add_to(m)
