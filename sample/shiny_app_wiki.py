@@ -84,7 +84,7 @@ def get_color(value, max_value):
 # UI Layout with line graph on the right and map on the left
 app_ui = ui.page_fluid(
     ui.h2("Changes in invasive species searches on Wikipedia last month"),
-    ui.input_select("species", "Select an invasive species:", list(all_species)),
+    ui.input_select("species", "Select an invasive species:", list(all_species), selected=None),
     ui.row(  # Corrected layout for row
         ui.column( 6,  # Left side - Map Display
             ui.output_ui("map_display"),
@@ -102,7 +102,7 @@ app_ui = ui.page_fluid(
                 ui.h5(species, style="font-weight: bold;"),
                 ui.p(f"Increased search volume in {species_counts.get(species, 0)} countries"),
                 style=f"background-color: {get_color(species_counts.get(species, 0), species_counts.max())}; padding: 10px; text-align: center; color: black; cursor: pointer; font-size: 12px;",
-                onclick=f"Shiny.setInputValue('species', '{species}')"
+                onclick=f"Shiny.setInputValue('species', '{species}'); Shiny.setInputValue('dropdown_species', '{species}');"
             )
             for species in top_species.index
         ]
@@ -111,6 +111,7 @@ app_ui = ui.page_fluid(
 
 # Server Logic
 def server(input, output, session):
+  
     @output
     @render.ui
     def map_display():
