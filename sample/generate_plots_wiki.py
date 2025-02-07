@@ -1,4 +1,15 @@
+import sys
 import os
+import subprocess
+
+# Ensure required packages are installed and up to date
+def install_and_update_packages(packages):
+    for package in packages:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
+
+required_packages = ['pandas', 'matplotlib', 'seaborn']
+install_and_update_packages(required_packages)
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -34,7 +45,7 @@ for species in df_long['Scientific Name'].unique():
 
     plt.title(f'Pageview Trends for {species}', fontsize=14, fontweight='bold')
     plt.xlabel('Date', fontsize=12)
-    plt.ylabel('Pageviews', fontsize=12)
+    plt.ylabel('Pageviews (#)', fontsize=12)
     plt.xticks(rotation=45)
 
     # Move legend outside the plot

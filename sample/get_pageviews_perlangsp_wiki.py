@@ -56,6 +56,8 @@ def fetch_daily_pageviews(language, title):
 species_pageviews = []
 date_columns = [(last_day_of_last_month - timedelta(days=i)).strftime("%Y%m%d") for i in range(last_day_of_last_month.day)][::-1]  # Ensure chronological order
 
+startTime = sys.time()
+
 for _, row in sitelinks_df.iterrows():
     language = row['Language']
     title = row['Wikipedia Title'].replace(' ', '_')  # Ensure URL-safe titles
@@ -125,6 +127,10 @@ for _, row in sitelinks_df.iterrows():
 # Create a DataFrame with the aggregated data
 species_pageviews_df = pd.DataFrame(species_pageviews)
 
+stopTime = sys.time()
+
+print(stopTime-startTime)
+
 # Save to CSV
 output_file = f'species_pageviews_analysis_{year}_{month:02d}.csv'
 species_pageviews_df.to_csv(output_file, index=False)
@@ -132,3 +138,4 @@ species_pageviews_df.to_csv(output_file, index=False)
 # Display a sample of the DataFrame
 print(f"Pageview Analysis for {year}-{month:02d}:")
 print(species_pageviews_df.head())
+

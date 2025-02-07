@@ -83,18 +83,23 @@ def get_color(value, max_value):
 
 # UI Layout with line graph on the right and map on the left
 app_ui = ui.page_fluid(
-    ui.h2("Changes in invasive species searches on Wikipedia last month"),
-    ui.input_select("species", "Select an invasive species:", list(all_species), selected=None),
+    ui.h2("Changes in invasive species searches on Wikipedia last month", style="font-weight: bold;"),
+    
+    ui.input_select("species", "Select an invasive species:", list(all_species), selected=""),
+
     ui.row(  # Corrected layout for row
         ui.column( 6,  # Left side - Map Display
             ui.output_ui("map_display"),
             ui.output_text("error_message")
         ),
         ui.column( 6,  # Right side - Line Graph
-            ui.output_ui("linegraph_display")  # Display the line graph image
+             ui.div(
+                ui.output_ui("linegraph_display"), #display the linegraph
+                style="display: flex; align-items: center; height: 100%; justify-content: center;"
+            )
         )
     ),
-    ui.h2("Top 10 most searched species last month"),
+    ui.h2("Top 10 most searched species last month", style="font-weight: bold;"),
     ui.layout_column_wrap(
         width=1/5,
         *[
@@ -102,16 +107,18 @@ app_ui = ui.page_fluid(
                 ui.h5(species, style="font-weight: bold;"),
                 ui.p(f"Increased search volume in {species_counts.get(species, 0)} countries"),
                 style=f"background-color: {get_color(species_counts.get(species, 0), species_counts.max())}; padding: 10px; text-align: center; color: black; cursor: pointer; font-size: 12px;",
-                onclick=f"Shiny.setInputValue('species', '{species}'); Shiny.setInputValue('dropdown_species', '{species}');"
+                onclick=f"Shiny.setInputValue('species', '{species}'); Shiny.setInputValue('dropdown_species', '{species}');" # Set the selected species in the dropdown
             )
             for species in top_species.index
         ]
     )
 )
 
+
+
+
 # Server Logic
 def server(input, output, session):
-  
     @output
     @render.ui
     def map_display():
@@ -120,7 +127,7 @@ def server(input, output, session):
             return ui.HTML("Select a species to display its map.")
         map_filename = f"{selected_species.replace(' ', '_')}_map.html"
         map_url = f"http://127.0.0.1:8001/maps/{map_filename}"
-        return ui.HTML(f'<h3>{selected_species}</h3><iframe src="{map_url}" width="100%" height="600px"></iframe>')
+        return ui.HTML(f'<h3 style="font-weight: bold;">{selected_species}</h3><iframe src="{map_url}" width="100%" height="600px"></iframe>')
 
     @output
     @render.ui
