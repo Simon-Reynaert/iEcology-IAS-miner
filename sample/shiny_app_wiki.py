@@ -107,7 +107,7 @@ app_ui = ui.page_fluid(
                 ui.h5(species, style="font-weight: bold;"),
                 ui.p(f"Increased search volume in {species_counts.get(species, 0)} countries"),
                 style=f"background-color: {get_color(species_counts.get(species, 0), species_counts.max())}; padding: 10px; text-align: center; color: black; cursor: pointer; font-size: 12px;",
-                onclick=f"Shiny.setInputValue('species', '{species}'); Shiny.setInputValue('dropdown_species', '{species}');" # Set the selected species in the dropdown
+                onclick=f"Shiny.setInputValue('species', '{species}');"
             )
             for species in top_species.index
         ]
