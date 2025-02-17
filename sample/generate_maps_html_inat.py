@@ -58,13 +58,13 @@ df["matched_country"] = df["country"].apply(lambda x: process.extractOne(x, coun
 
 def calculate_alpha(obs_count):
     if obs_count == 0:
-        return 0.25, "gray"  # Grey color with alpha 0.25 for zero observations
+        return 0.7, "gray"  # Grey color with alpha 0.7 for zero observations
     elif obs_count <= 5:
-        return 0.25, "rgba(255, 0, 0, 0.25)"  # Red with low alpha for low observations
+        return 0.40, "rgba(255, 0, 0, 0.40)"  # Red with low alpha for low observations
     elif obs_count <= 20:
-        return 0.5, "rgba(255, 0, 0, 0.5)"  # Red with medium alpha for mid-range observations
+        return 0.60, "rgba(255, 0, 0, 0.60)"  # Red with medium alpha for mid-range observations
     elif obs_count <= 40:
-        return 0.75, "rgba(255, 0, 0, 0.75)"  # Red with high alpha for higher observations
+        return 0.80, "rgba(255, 0, 0, 0.80)"  # Red with high alpha for higher observations
     else:
         return 1.0, "rgba(255, 0, 0, 1)"  # Fully opaque red for very high observations
 
@@ -107,19 +107,19 @@ def generate_folium_map(species_df):
     ">
         <div style="margin-bottom: 5px; font-weight: bold;">Observation Count Legend:</div>
         <div style="display: flex; align-items: center; margin-bottom: 5px;">
-            <span style="width: 20px; height: 20px; background-color: rgba(128, 128, 128, 0.25); border: 1px solid #000; display: inline-block; margin-right: 8px;"></span>
+            <span style="width: 20px; height: 20px; background-color: rgba(128, 128, 128, 0.7); border: 1px solid #000; display: inline-block; margin-right: 8px;"></span>
             0 observations
         </div>
         <div style="display: flex; align-items: center; margin-bottom: 5px;">
-            <span style="width: 20px; height: 20px; background-color: rgba(255, 0, 0, 0.25); border: 1px solid #000; display: inline-block; margin-right: 8px;"></span>
+            <span style="width: 20px; height: 20px; background-color: rgba(255, 0, 0, 0.4); border: 1px solid #000; display: inline-block; margin-right: 8px;"></span>
             1-5 observations
         </div>
         <div style="display: flex; align-items: center; margin-bottom: 5px;">
-            <span style="width: 20px; height: 20px; background-color: rgba(255, 0, 0, 0.5); border: 1px solid #000; display: inline-block; margin-right: 8px;"></span>
+            <span style="width: 20px; height: 20px; background-color: rgba(255, 0, 0, 0.6); border: 1px solid #000; display: inline-block; margin-right: 8px;"></span>
             6-20 observations
         </div>
         <div style="display: flex; align-items: center; margin-bottom: 5px;">
-            <span style="width: 20px; height: 20px; background-color: rgba(255, 0, 0, 0.75); border: 1px solid #000; display: inline-block; margin-right: 8px;"></span>
+            <span style="width: 20px; height: 20px; background-color: rgba(255, 0, 0, 0.8); border: 1px solid #000; display: inline-block; margin-right: 8px;"></span>
             21-40 observations
         </div>
         <div style="display: flex; align-items: center;">

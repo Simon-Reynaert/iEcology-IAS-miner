@@ -103,7 +103,7 @@ app_ui = ui.page_navbar(
         ui.h2("Top 10 most searched species last month", style="font-weight: bold;"),
         ui.output_ui("top_species_cards")
     ),
-    title="Species observations and pageview changes last month"
+    title="Species observations and pageview changes last month",
 )
 
 # Shiny Server
