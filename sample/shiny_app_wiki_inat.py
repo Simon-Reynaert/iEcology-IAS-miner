@@ -23,12 +23,12 @@ from fastapi import FastAPI
 from starlette.staticfiles import StaticFiles
 import uvicorn
 
-# Paths (make sure these directories exist in the same directory as your script)
+# Paths (ensure these directories exist in the same directory as your script)
 map_dir = Path("maps")
 plots_dir = Path("species_plots")
 inat_map_dir = Path("inat_maps")
 
-# Load data (handle potential file errors)
+# Load data (with error handling)
 try:
     species_data = pd.read_csv("species_pageviews_analysis_2025_01.csv")
     species_counts = species_data[species_data["Status"] == "Increasing"].groupby("Scientific Name").size()
@@ -61,7 +61,7 @@ def run_fastapi():
 
 threading.Thread(target=run_fastapi, daemon=True).start()
 
-# Color gradient
+# Color gradient function remains unchanged
 def get_color(value, max_value):
     steps = 10
     ratio = value / max_value if max_value > 0 else 0
@@ -73,21 +73,38 @@ def get_color(value, max_value):
 
 # Populate top_species_data with species info
 top_species_data = []
-
-# Assuming top_species is a pandas Series where the index is the species name and the value is the count
 for species, count in top_species.items():
-    # You can calculate color based on the count or some other logic
-    color = get_color(count, top_species.max())  # Using the get_color function to assign a color
-    
-    # Append a dictionary with the species info
+    color = get_color(count, top_species.max())
     top_species_data.append({
         'species': species,
         'count': count,
         'color': color
     })
 
-# Shiny UI with custom styles
+# Create custom title:
+custom_title = ui.tags.div(
+    ui.tags.span(
+        "Species observations and pageview changes last month",
+        style="font-weight: bold; font-size: 40px;"
+    ),
+    ui.img(
+        src="http://127.0.0.1:8001/static/OneSTOP_final_logo_1.png",
+        style="max-width: 400px; padding: 0; margin-top: 0px;"  # Logo below the title with margin for spacing
+    ),
+    style="text-align: right; display: block; margin: 0; padding: 0;"
+)
+
+# Inject custom CSS to style the tab names: increase font size and bold them.
+custom_css = ui.tags.style("""
+.navbar-nav .nav-link {
+    font-size: 30px;
+    font-weight: bold;
+}
+""")
+
+# Shiny UI
 app_ui = ui.page_navbar(
+    ui.head_content(custom_css),
     ui.nav_panel(
         "iNaturalist",
         ui.input_select("inat_species", "Select an invasive species:", choices=list(inat_species_list), selected=""),
@@ -98,12 +115,13 @@ app_ui = ui.page_navbar(
         ui.input_select("wikipedia_species", "Select an invasive species:", choices=list(all_species), selected=""),
         ui.row(
             ui.column(6, ui.output_ui("map_display")),
-            ui.column(6, ui.output_ui("linegraph_display"), style="display: flex; align-items: center; justify-content: center;")
+            ui.column(6, ui.output_ui("linegraph_display"),
+                      style="display: flex; align-items: center; justify-content: center;")
         ),
         ui.h2("Top 10 most searched species last month", style="font-weight: bold;"),
         ui.output_ui("top_species_cards")
     ),
-    title="Species observations and pageview changes last month",
+    title=custom_title  # Setting the custom title at the end
 )
 
 # Shiny Server
@@ -115,8 +133,8 @@ def server(input, output, session):
         if top_species_data:
             cards = [
                 ui.card(
-                    ui.h5(card["species"], style="font-weight: bold;"),  # Assuming 'species' is a key in your data
-                    ui.p(f"Increased search volume in {card['count']} countries"),  # Assuming 'count' is a key
+                    ui.h5(card["species"], style="font-weight: bold;"),
+                    ui.p(f"Increased search volume in {card['count']} countries"),
                     style=f"background-color: {card['color']}; padding: 10px; text-align: center; color: black; cursor: pointer; font-size: 12px;",
                     onclick=f"Shiny.setInputValue('wikipedia_species', '{card['species']}');"
                 ) for card in top_species_data
