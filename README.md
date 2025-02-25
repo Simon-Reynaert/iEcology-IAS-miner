@@ -1,5 +1,3 @@
-
-https://img.shields.io/badge/any_text-you_like-blue
 # IAScraper
 The goal of **IAScraper** is to allow users to seamlessly extract data from a variety of internet platforms on invasive species mentions and visualize where people are talking about what. Specifically, it analyzes and visualizes changes in invasive species searches, pageviews and chatter over the past month and allows comparison between countries and different internet platforms. 
 
