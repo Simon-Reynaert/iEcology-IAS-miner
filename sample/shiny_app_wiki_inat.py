@@ -27,6 +27,7 @@ import uvicorn
 map_dir = Path("maps")
 plots_dir = Path("species_plots")
 inat_map_dir = Path("inat_maps")
+flickr_map_dir = Path("flickr_maps")  # New directory for Flickr maps
 
 # Load data (with error handling)
 try:
@@ -89,12 +90,12 @@ custom_title = ui.tags.div(
     ),
     ui.img(
         src="http://127.0.0.1:8001/static/OneSTOP_final_logo_1.png",
-        style="max-width: 400px; padding: 0; margin-top: 0px;"  # Logo below the title with margin for spacing
+        style="max-width: 400px; padding: 0; margin-top: 0px;"
     ),
     style="text-align: right; display: block; margin: 0; padding: 0;"
 )
 
-# Inject custom CSS to style the tab names: increase font size and bold them.
+# Inject custom CSS to style the tab names
 custom_css = ui.tags.style("""
 .navbar-nav .nav-link {
     font-size: 30px;
@@ -102,7 +103,7 @@ custom_css = ui.tags.style("""
 }
 """)
 
-# Shiny UI
+# Shiny UI with the new Flickr tab added
 app_ui = ui.page_navbar(
     ui.head_content(custom_css),
     ui.nav_panel(
@@ -121,7 +122,12 @@ app_ui = ui.page_navbar(
         ui.h2("Top 10 most searched species last month", style="font-weight: bold;"),
         ui.output_ui("top_species_cards")
     ),
-    title=custom_title  # Setting the custom title at the end
+    ui.nav_panel(
+        "Flickr",  # New Flickr tab
+        ui.input_select("flickr_species", "Select a species:", choices=list(all_species), selected=""),
+        ui.output_ui("flickr_map_display")
+    ),
+    title=custom_title
 )
 
 # Shiny Server
@@ -186,6 +192,21 @@ def server(input, output, session):
             return ui.HTML(f'<img src="{plot_url}" width="100%" />')
         else:
             return ui.HTML(f"Line graph not found for {selected_species}.")
+
+    @output
+    @render.ui
+    def flickr_map_display():
+        selected_species = input.flickr_species()
+        if not selected_species:
+            return ui.HTML("Select a species to display its Flickr map.")
+        map_filename = f"{selected_species.replace(' ', '_')}_map.html"
+        map_url = f"http://127.0.0.1:8001/static/flickr_maps/{map_filename}"
+        map_path = flickr_map_dir / map_filename
+        print(f"Looking for Flickr map at: {map_path}")
+        if map_path.exists():
+            return ui.HTML(f'<h3 style="font-weight: bold;">{selected_species}</h3><iframe src="{map_url}" width="100%" height="600px"></iframe>')
+        else:
+            return ui.HTML(f"Map not found for {selected_species}.")
 
 app = App(app_ui, server)
 
