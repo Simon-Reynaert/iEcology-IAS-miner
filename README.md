@@ -1,6 +1,6 @@
 # IAScraper
 
-Copyright (C) 20025-2026 [Simon Reynaert](https://scholar.google.be/citations?user=yIVCDfoAAAAJ&hl=en).
+Copyright (C) 2025-2026 [Simon Reynaert](https://scholar.google.be/citations?user=yIVCDfoAAAAJ&hl=en).
 
 
 
