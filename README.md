@@ -7,7 +7,7 @@ Copyright (C) 2025-2026 [Simon Reynaert](https://scholar.google.be/citations?use
 
 Project website: https://onestop-project.eu/
 
-The goal of **IAScraper** is to allow users to seamlessly extract data from a variety of internet platforms on invasive species mentions and visualize where people are talking about what. Specifically, it analyzes and visualizes changes in invasive species searches, pageviews and chatter over the past month and allows comparison between countries and different internet platforms. 
+The goal of **IAScraper** is to allow users to seamlessly extract data from a variety of internet platforms on invasive species mentions, update it on a daily basis and visualize where people are talking about what. Specifically, it analyzes and visualizes changes in invasive species searches, pageviews and chatter compared to a historical background variation of 2022-2025 and allows comparison between countries and different internet platforms. 
 
 Currently this repository is still a work in progress, primarily used as test branch. Soon it will be integrated within the OneSTOP repository.  
 
