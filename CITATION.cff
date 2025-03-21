@@ -4,6 +4,6 @@ authors:
 - family-names: "Reynaert"
   given-names: "Simon"
   orcid: "https://orcid.org/0000-0003-4690-0955"
-title: "iEcology-test"
+title: "IAScraper"
 version: 1.0.0
-url: "https://github.com/Simon-Reynaert/iEcology-test"
+url: "https://github.com/Simon-Reynaert/IAScraper"
