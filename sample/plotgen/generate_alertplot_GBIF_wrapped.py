@@ -10,7 +10,7 @@ import rpy2.robjects as ro
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
 # Build the absolute path to the CSV file located one directory above
-df_path = os.path.join(current_dir, "..", "species_country_observations_inat_2022_present.csv")
+df_path = os.path.join(current_dir, "..", "GBIF_Observations_2022-present_final.csv")
 df_path = os.path.abspath(df_path)
 
 # Check if the file exists; if not, raise an error
@@ -34,7 +34,7 @@ if(length(new_packages)) install.packages(new_packages)
 # Load packages
 lapply(packages, library, character.only = TRUE)
 
-# --- Data Loading and Preprocessing (Original iNaturalist) ---
+# --- Data Loading and Preprocessing (GBIF) ---
 # Use the CSV path provided by Python
 df <- read.csv(df_path)
 head(df)
@@ -53,12 +53,12 @@ df_long <- df %>%
                               levels = c("historical", "2025")))
 str(df_long)
 
-# --- Directory Setup (Original iNaturalist) ---
-if (!dir.exists("species_plots_inat")) {
-  dir.create("species_plots_inat")
+# --- Directory Setup (GBIF) ---
+if (!dir.exists("species_plots_GBIF")) {
+  dir.create("species_plots_GBIF")
 }
 
-# --- Alert Dataframe (Original iNaturalist) ---
+# --- Alert Dataframe (GBIF) ---
 alert_info <- data.frame(species = character(),
                          country = character(),
                          alert = logical(),
@@ -237,7 +237,7 @@ for (i in start_index:nrow(species_countries)) {
     final_plot <- plot_grid(base_plot, legend_plot, ncol = 2, rel_widths = c(1, 0.3))
     
     # Save the combined plot
-    ggsave(paste0("species_plots_inat/", species_name, "_", country, ".png"), final_plot, width = 8, height = 6)
+    ggsave(paste0("species_plots_GBIF/", species_name, "_", country, ".png"), final_plot, width = 8, height = 6)
     
     print(paste(Sys.time(), ": Plot generated for species", species_name, "in country", country))
     
@@ -251,7 +251,7 @@ for (i in start_index:nrow(species_countries)) {
 }
 
 # --- Saving Alert Information ---
-write.csv(alert_info, "species_alert_info_inat.csv", row.names = FALSE)
+write.csv(alert_info, "species_alert_info_GBIF.csv", row.names = FALSE)
 '''
 
 # Execute the R code using rpy2

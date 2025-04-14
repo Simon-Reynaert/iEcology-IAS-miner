@@ -28,7 +28,9 @@ def get_country_place_id(country_name):
     Returns the first result's id if found, else returns None.
     """
     base_url = "https://api.inaturalist.org/v1/places/autocomplete"
-    params = {"q": country_name, "per_page": 1}
+    params = {"q": country_name, 
+              "per_page": 1 #only need the top match for countries
+            }
     response = requests.get(base_url, params=params)
     if response.status_code == 200:
         data = response.json()
@@ -47,6 +49,7 @@ def get_observation_count_for_country(taxon_id, place_id, start_date, end_date):
     params = {
         "taxon_id": taxon_id,
         "place_id": place_id,
+        #"quality_grade": "casual", #Not necessary, but can be added to allow research grade or all observations
         "d1": start_date,
         "d2": end_date,
         "per_page": 1  # we only need the count from the metadata

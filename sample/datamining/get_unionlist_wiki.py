@@ -81,7 +81,10 @@ df.to_csv('species_q_numbers.csv', index=False)
 # Define the official EU languages (ISO 639-1 codes)
 eu_languages = [
     "bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "ga", "hr",
-    "hu", "it", "lt", "lv", "mt", "nl", "pl", "pt", "ro", "sk", "sl", "sv"
+    "hu", "it", "lt", "lv", "mt", "nl", "pl", "pt", "ro", "sk", "sl", "sv", 
+    "is", "no",  # Icelandic and Norwegian (official languages of Norway)
+    "eu", "gl", "ca", "sq", "bs", "mk", "sr", "tr",  # Regional and minority languages
+    "cy"  # Greek Cypriot dialect (Cyprus)
 ]
 
 # Load the species Q-numbers from the previously saved CSV file
