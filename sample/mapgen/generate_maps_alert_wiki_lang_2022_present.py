@@ -35,12 +35,41 @@ df = pd.read_csv("species_alert_info_wiki.csv")
 
 # Define language to country mapping (for EU countries)
 language_to_country = {
-    "de": "Germany", "fr": "France", "es": "Spain", "it": "Italy", "nl": "Netherlands",
-    "pl": "Poland", "sv": "Sweden", "da": "Denmark", "fi": "Finland", "no": "Norway",
-    "pt": "Portugal", "cs": "Czech Republic", "sk": "Slovakia", "hu": "Hungary",
-    "ro": "Romania", "bg": "Bulgaria", "el": "Greece", "lt": "Lithuania", "lv": "Latvia",
-    "et": "Estonia", "sl": "Slovenia", "hr": "Croatia", "mt": "Malta", "lb": "Luxembourg",
-    "en": "Ireland", "ga": "Ireland", "cy": "Cyprus"
+    "bg": "Bulgaria",  # Bulgarian
+    "cs": "Czech Republic",  # Czech
+    "da": "Denmark",  # Danish
+    "de": "Germany",  # German
+    "el": "Greece",  # Greek
+    "en": "United Kingdom",  # English (Note: Could also include Ireland)
+    "es": "Spain",  # Spanish
+    "et": "Estonia",  # Estonian
+    "fi": "Finland",  # Finnish
+    "fr": "France",  # French
+    "ga": "Ireland",  # Irish
+    "hr": "Croatia",  # Croatian
+    "hu": "Hungary",  # Hungarian
+    "it": "Italy",  # Italian
+    "lt": "Lithuania",  # Lithuanian
+    "lv": "Latvia",  # Latvian
+    "mt": "Malta",  # Maltese
+    "nl": "Netherlands",  # Dutch
+    "pl": "Poland",  # Polish
+    "pt": "Portugal",  # Portuguese
+    "ro": "Romania",  # Romanian
+    "sk": "Slovakia",  # Slovak
+    "sl": "Slovenia",  # Slovenian
+    "sv": "Sweden",  # Swedish
+    "is": "Iceland",  # Icelandic
+    "no": "Norway",  # Norwegian
+    "eu": "Spain",  # Basque (regional, spoken in parts of Spain)
+    "gl": "Spain",  # Galician (regional, spoken in parts of Spain)
+    "ca": "Spain",  # Catalan (regional, spoken in parts of Spain)
+    "sq": "Albania",  # Albanian
+    "bs": "Bosnia and Herzegovina",  # Bosnian
+    "mk": "North Macedonia",  # Macedonian
+    "sr": "Serbia",  # Serbian
+    "tr": "Turkey",  # Turkish
+    "cy": "Cyprus"  # Greek Cypriot dialect
 }
 
 # Set up paths for the Natural Earth shapefile
