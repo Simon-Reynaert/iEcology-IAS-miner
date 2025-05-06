@@ -10,7 +10,7 @@ from io import StringIO
 species_df = pd.read_csv("species_q_numbers.csv")
 q_to_name = dict(zip(species_df["Wikidata Q-number"].astype(str), species_df["Scientific Name"]))
 
-# 2. Define the test date range: from start_date for 15 days.
+# 2. Define the date range: from start_date (limited by data availability in endpoint) to custom defined amount of days.
 start_date = datetime.strptime("2023-02-06", "%Y-%m-%d")
 
 end_date = datetime.today()
@@ -34,7 +34,7 @@ else:
 
 # 4. Determine missing dates (those not already present as columns)
 missing_dates = [d for d in all_dates if d not in existing_date_cols]
-print(f"Testing with missing dates: {missing_dates}")
+print(f"Querying with missing dates: {missing_dates}")
 
 # 5. Wikimedia URL and headers
 base_url = "https://analytics.wikimedia.org/published/datasets/country_project_page"

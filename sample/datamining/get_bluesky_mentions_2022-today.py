@@ -117,7 +117,7 @@ for idx, name in tqdm(enumerate(scientific_names), total=len(scientific_names), 
     # Save interim backup after each species
     print(f"Saving backup after processing: {name} ({species_count} posts found)")
     backup_df = pd.DataFrame(list(unique_posts.values()))
-    backup_df.to_csv("bluesky_posts_eu_backup.csv", index=False)
+    backup_df.to_csv("bluesky_posts_eu.csv", index=False)
 
 # Filter posts to keep only those with allowed EU languages
 filtered_posts = {
@@ -127,7 +127,7 @@ filtered_posts = {
 
 print(f"\nTotal unique posts collected: {len(unique_posts)}")
 print(f"Posts after filtering by allowed EU languages: {len(filtered_posts)}")
-
+    
 # Save final CSV
 final_df = pd.DataFrame(list(filtered_posts.values()))
 final_df.to_csv("bluesky_posts_eu.csv", index=False)
