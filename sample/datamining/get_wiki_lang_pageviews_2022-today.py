@@ -26,12 +26,12 @@ HEADERS = {
     "User-Agent": "iEcology_OneSTOP_EUProject/1.0 (simon.reynaert@plantentuinmeise.be)"
 }
 
-# Define date range from January 2022 until today
+# Define date range from January 2022 until yesterday (since today is not complete and will give zero pageviews wrongly)
 utc = pytz.UTC
 today = datetime.now(utc).date()
 yesterday = today - timedelta(days=1)
 start_date = datetime(2022, 1, 1).strftime("%Y%m%d")
-end_date = today.strftime("%Y%m%d")
+end_date = yesterday.strftime("%Y%m%d")  # Fetch up to yesterday
 
 def fetch_daily_pageviews(language, title, existing_dates=None, start_fetch_date=None):
     project = f"{language}.wikipedia"
@@ -75,7 +75,7 @@ output_file = 'species_pageviews_analysis_2022_present.csv'
 existing_data = load_existing_data(output_file)
 
 # Generate date columns
-date_columns = pd.date_range(start="2022-01-01", end=today).strftime("%Y%m%d").tolist()
+date_columns = pd.date_range(start="2022-01-01", end=yesterday).strftime("%Y%m%d").tolist()
 
 # Get missing dates
 missing_dates = get_missing_dates(existing_data, date_columns)
@@ -94,7 +94,7 @@ else:
         if existing_data.empty or scientific_name not in existing_data['Scientific Name'].values or language not in existing_data['Language'].values:
             print(f"Fetching data for {scientific_name} ({language}) from {start_date} to {end_date}")
             daily_pageviews = fetch_daily_pageviews(language, title)
-            pageviews_list = [daily_pageviews.get(date, 0) for date in date_columns]
+            pageviews_list = [daily_pageviews.get(date, '') for date in date_columns] #adapt '' to 0 if you want to auto fill zeroes
         else:
             existing_row = existing_data[(existing_data['Scientific Name'] == scientific_name) & (existing_data['Language'] == language)].iloc[0]
             existing_dates = existing_row.index[3:].tolist()
@@ -108,7 +108,7 @@ else:
                 daily_pageviews = fetch_daily_pageviews(language, title, existing_dates, first_missing_date)
             else:
                 daily_pageviews = {}
-            pageviews_list = [existing_row.get(date, 0) if date in existing_dates else daily_pageviews.get(date, 0) for date in date_columns]
+            pageviews_list = [existing_row.get(date, '') if date in existing_dates else daily_pageviews.get(date, '') for date in date_columns] #adapt '' to 0 if you want to auto fill zeroes
 
         species_data = {"Scientific Name": scientific_name, "Language": language, "Wikipedia Title": title}
         species_data.update(dict(zip(date_columns, pageviews_list)))

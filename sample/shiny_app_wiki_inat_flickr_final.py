@@ -152,6 +152,11 @@ app_ui = ui.tags.div(
     ui.page_navbar(
         ui.head_content(custom_css),
         ui.nav_panel(
+            "EASIN",
+            ui.input_select("easin_species", "Select a species:", choices=list(all_species), selected=""),
+            ui.output_ui("easin_map_display")
+        ),
+        ui.nav_panel(
             "iNaturalist",
             ui.input_select("inat_species", "Select an invasive species:", choices=list(inat_species_list), selected=""),
             ui.output_ui("inat_map_display"),
@@ -177,7 +182,21 @@ app_ui = ui.tags.div(
 
 # Shiny Server
 def server(input, output, session):
-
+    # EASIN map display
+    @output
+    @render.ui
+    def easin_map_display():
+        selected_species = input.easin_species()
+        if not selected_species:
+            return ui.HTML("Select a species to display its EASIN map.")
+        map_filename = f"{selected_species.replace(' ', '_')}_map.html"
+        map_url = f"http://127.0.0.1:8001/static/IAS_presence_easin_maps/{map_filename}"
+        map_path = Path("IAS_presence_easin_maps") / map_filename
+        print(f"Looking for EASIN map at: {map_path}")
+        if map_path.exists():
+            return ui.HTML(f'<h3 style="font-weight: bold;">{selected_species}</h3><iframe src="{map_url}" width="100%" height="600px"></iframe>')
+        else:
+            return ui.HTML(f"EASIN map not found for {selected_species}.")
     # Wiki tiles
     @output
     @render.ui
