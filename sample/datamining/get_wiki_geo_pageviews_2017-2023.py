@@ -12,19 +12,18 @@ species_df = pd.read_csv("species_q_numbers.csv")
 q_to_name = dict(zip(species_df["Wikidata Q-number"].astype(str), species_df["Scientific Name"]))
 
 # 2. Define the date range: from start_date (limited by data availability in endpoint) to custom defined amount of days.
-start_date = datetime.strptime("2023-02-06", "%Y-%m-%d")
+start_date = datetime.strptime("2017-02-09", "%Y-%m-%d") #as available in https://analytics.wikimedia.org/published/datasets/country_project_page_historical
+end_date = datetime.strptime("2023-02-05", "%Y-%m-%d")  #as available in https://analytics.wikimedia.org/published/datasets/country_project_page_historical/
 
-end_date = datetime.today()
-today = datetime.today()
 
 #To test use code below
 #end_date = start_date + timedelta(days=5)  # First 15 days (inclusive)
 #all_dates = [(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(5)]
 
-all_dates = [(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range((today - start_date).days + 1)]
+all_dates = [(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range((end_date - start_date).days + 1)]
 
 # 3. Set the output filename and load existing data if available.
-output_filename = "species_pageviews_wiki_geolocated_2023-02-06_now.csv"
+output_filename = "species_pageviews_wiki_geolocated_2017-02-09_2023-02-05.csv"
 if os.path.exists(output_filename):
     wide_df = pd.read_csv(output_filename)
     # Get existing date columns (skip "Scientific Name", "Country", "Wikidata Q-number")
@@ -38,7 +37,7 @@ missing_dates = [d for d in all_dates if d not in existing_date_cols]
 print(f"Querying with missing dates: {missing_dates}")
 
 # 5. Wikimedia URL and headers
-base_url = "https://analytics.wikimedia.org/published/datasets/country_project_page"
+base_url = "https://analytics.wikimedia.org/published/datasets/country_project_page_historical"
 headers = {"User-Agent": "iEcology_OneSTOP_EUProject/1.0 (simon.reynaert@plantentuinmeise.be)"}
 
 # 6. Process each missing date.
@@ -95,6 +94,5 @@ for date_str in missing_dates:
     
     # Sleep for 1-3 second to be polite.
     time.sleep(random.uniform(1, 3))
-
 
 print(f"All available data processed. Final data saved to {output_filename}.")
