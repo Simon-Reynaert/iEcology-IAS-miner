@@ -7,7 +7,7 @@ Copyright (C) 2025-2026 [Simon Reynaert](https://scholar.google.be/citations?use
 
 Project website: https://onestop-project.eu/
 
-The goal of **IAScraper** is to allow users to seamlessly extract data from a variety of internet platforms on invasive species mentions, update it on a daily basis and visualize where people are talking about what. Specifically, it analyzes and visualizes changes in invasive species searches, pageviews and chatter in 2025 compared to the historical background variation of 2022-2024 and allows comparison between countries and different internet platforms. 
+The goal of **iEcology-IAS-miner** is to allow users to seamlessly extract data from a variety of internet platforms on invasive species mentions and process them to daily counts per species x country x platform datasets. Specifically, it creates timeseries datasets recording changes in invasive species searches, pageviews and activity between 2016 and 2025 from Wikipedia, Flickr, Youtube and iNaturalist. Reference data on the same species x country combinations is also pulled from GBIF.  
 
 Currently this repository is still a work in progress, primarily used as test branch. Soon it will be integrated within the OneSTOP repository.  
 
