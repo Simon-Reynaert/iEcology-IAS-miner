@@ -1,4 +1,4 @@
-#import dependencies
+#load dependencies
 import requests
 import csv
 
