@@ -1,3 +1,4 @@
+#load dependencies
 import flickrapi
 import pandas as pd
 from datetime import datetime
@@ -8,7 +9,7 @@ import time
 import os
 from dotenv import load_dotenv
 
-# --- API credentials ---
+# load API credentials 
 load_dotenv() #loads from .env
 
 API_KEY = os.getenv("FLICKR_API_KEY")
@@ -17,10 +18,10 @@ API_SECRET = os.getenv("FLICKR_API_SECRET")
 print(f"API Key: {API_KEY}")
 print(f"API Secret: {API_SECRET}")
 
-# --- Initialize flickrapi client ---
+# Initialize flickrapi client
 flickr = flickrapi.FlickrAPI(API_KEY, API_SECRET, format='parsed-json')
 
-# --- Authenticate via OAuth if needed ---
+# Authenticate via OAuth if needed (otherwise ommitted, should only need this once)
 if not flickr.token_valid(perms='read'):
     flickr.get_request_token(oauth_callback='oob')
     authorize_url = flickr.auth_url(perms='read')
@@ -29,12 +30,12 @@ if not flickr.token_valid(perms='read'):
     verifier = input("🔐 Enter verifier code from Flickr: ")
     flickr.get_access_token(verifier)
 
-# --- EU country bounding boxes (min_lon, min_lat, max_lon, max_lat) ---
+# EU country bounding boxes (min_lon, min_lat, max_lon, max_lat)
 eu_bounding_boxes = {
     "EU": (-25, 34, 40, 72)  # Bounding box for the entire EU
 }
 
-# --- Load species list ---
+# Load species list
 species_df = pd.read_csv("list_of_union_concern.csv")
 scientific_names = (
     species_df["Scientific Name"]
@@ -43,7 +44,7 @@ scientific_names = (
     .tolist()  # convert to list
 )
 
-# --- Optional geocoder fallback ---
+#Optional geocoder fallback to get country from GPS coordinates
 geolocator = Nominatim(user_agent="geo_flickr_scraper")
 
 
@@ -56,9 +57,9 @@ def get_country_from_gps(lat, lon):
     except Exception:
         return None
 
-# --- Fetching loop (machine‐tags + EXIF + reverse‐geocode fallback + error handling) ---
-results = []
-# --- inside your country/species loops, replace the flickr.photos.search block with this ---
+# Fetching loop (machine‐tags + EXIF + reverse‐geocode fallback + error handling)
+results = [] #initialize empty list to store results
+# inside your country/species loops, replace the flickr.photos.search block with this
 
 for country, (min_lon, min_lat, max_lon, max_lat) in eu_bounding_boxes.items():
     for sci_name in tqdm(scientific_names, desc=f"Fetching for {country}"):
@@ -74,7 +75,7 @@ for country, (min_lon, min_lat, max_lon, max_lat) in eu_bounding_boxes.items():
         while True:
             try:
                 resp = flickr.photos.search(
-                    # use normal tags instead of machine_tags
+                    # using normal tags since best results 
                     tags     = tags_query,
                     tag_mode = "any",       # return photos matching any of the above
                     bbox             = f"{min_lon},{min_lat},{max_lon},{max_lat}",

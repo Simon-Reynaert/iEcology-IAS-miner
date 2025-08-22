@@ -1,3 +1,4 @@
+#import dependencies
 import requests
 import pandas as pd
 import concurrent.futures
@@ -16,6 +17,7 @@ ALLOWED_LANGS = {
 species_df = pd.read_csv("species_wikipedia_sitelinks.csv", usecols=["Scientific Name"])
 species_list = species_df["Scientific Name"].dropna().unique()
 
+#functions to get GBIF species keys, synonyms and common names
 def get_gbif_species_key(scientific_name):
     """Fetch GBIF species key."""
     url = f"https://api.gbif.org/v1/species/match?name={scientific_name}"

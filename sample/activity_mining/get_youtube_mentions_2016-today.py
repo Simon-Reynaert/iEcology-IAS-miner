@@ -1,3 +1,4 @@
+#load dependencies
 import pandas as pd
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -9,7 +10,8 @@ from datetime import datetime, timedelta
 # Define and read your YouTube Data API key (saved as environment variable)
 load_dotenv() #loads from .env
 API_KEY = os.getenv("YT_API_KEY") 
-#print(f"API Key: {API_KEY}")
+
+# Initialize YouTube API client
 youtube = build('youtube', 'v3', developerKey=API_KEY)
 
 # File to track progress
@@ -34,12 +36,12 @@ def update_progress(species, country):
     progress_df.to_csv(PROGRESS_FILE, index=False)
     print(f"Updated progress: {species} in {country}")
 
-# Load species list (exact matches)
+# Load species list 
 species_df = pd.read_csv('list_of_union_concern.csv')
 species_list = species_df['Scientific Name'].dropna().unique().tolist()
 
 # Define a list of countries with approximate center coordinates and tailored radii.
-# This list now incorporates multiple circles for better coverage of larger/irregular countries.
+# This list incorporates multiple circles for better coverage of larger/irregular countries.
 countries = [
     {"country": "Austria",        "location": "47.5162,14.5501",   "radius": "180km"},
     {"country": "Belgium",        "location": "50.5039,4.4699",    "radius": "120km"},
@@ -182,14 +184,6 @@ def save_progress(video_data, species, country):
     if video_data:
         video_df = pd.DataFrame(video_data)
         os.makedirs('youtube_results_2016-now_fuzzymatch', exist_ok=True)
-        # Modified file name to append a hash or unique identifier if multiple circles for a country
-        # This modification is crucial to avoid overwriting if a country has multiple circles
-        # and you want to distinguish results from each specific circle.
-        # However, for your current setup, where all results for a *country name*
-        # are aggregated before saving, the original filename might be sufficient
-        # if the goal is one CSV per (species, country) pair, regardless of the circle used.
-        # Let's stick to the original naming for now, assuming you want all videos for a (species, country)
-        # to be in one file, even if found via different circles.
         file_name = f"youtube_results_2016-now_fuzzymatch/{species.replace(' ', '_')}_{country.replace(' ', '_')}.csv"
         
         # Check if file exists to append or create
@@ -251,10 +245,7 @@ def get_video_data_for_species_and_countries(species_list, country_list):
                 # Add results from this circle to the aggregated list for the country
                 current_species_country_results[(species, country_name)].extend(results)
 
-                # If results are within the 500 limit, use these.
-                # Note: This logic needs a slight adjustment for multiple circles.
-                # We need to consider the *total* fetched for this specific circle's query,
-                # not the overall aggregated total.
+                # If results per circle are within the 500 limit, use these.
                 if fetched_count >= 500: # If this specific circle query hit the cap
                     print(f"    ⚠️  Hit 500-result cap for this circle. Splitting query into smaller intervals (100 days).")
                     start_dt = datetime.strptime(DEFAULT_PUBLISHED_AFTER, "%Y-%m-%dT%H:%M:%SZ")

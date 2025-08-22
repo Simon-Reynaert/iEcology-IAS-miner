@@ -1,3 +1,4 @@
+#load dependencies
 import pandas as pd
 from reverse_geocoder import search as rg_search
 import pycountry
@@ -5,6 +6,7 @@ from tqdm import tqdm
 import multiprocessing
 import math
 
+#define EU, Schengen, EFTA countries
 EU_SCHENGEN_EFTA_COUNTRIES = {
     'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
     'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
@@ -12,12 +14,15 @@ EU_SCHENGEN_EFTA_COUNTRIES = {
     'IS', 'LI', 'NO', 'CH','GB'                    # EFTA / Schengen / UK
 }
 
+#derive country name from country code
 def cc_to_name(cc):
     country = pycountry.countries.get(alpha_2=cc)
     return country.name if country else cc
 
+#define distance threshold for deduplication of observations(in meters)
 DISTANCE_THRESHOLD_METERS = 100.0
 
+#haversine formula to calculate distance between two lat/lon points
 def haversine(lat1, lon1, lat2, lon2):
     R = 6371000
     phi1, phi2 = math.radians(lat1), math.radians(lat2)
@@ -29,6 +34,7 @@ def haversine(lat1, lon1, lat2, lon2):
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     return R * c
 
+#main processing function
 def main():
     INPUT_FILE = 'flickr_species_observations_eu_combined_latin_normtag_2004-now.csv'
     OUTPUT_FILE = 'deduplicated_geocoded_flickr_2004-now.csv'

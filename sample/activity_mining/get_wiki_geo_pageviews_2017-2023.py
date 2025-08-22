@@ -1,3 +1,4 @@
+#load dependencies
 import os
 import time
 import random
@@ -5,6 +6,11 @@ import requests
 import pandas as pd
 from datetime import datetime, timedelta
 from io import StringIO
+from dotenv import load_dotenv
+
+# 0. Load environment variables from a .env file for user agent identification
+load_dotenv()
+USER_AGENT = os.getenv("WIKI_USER_AGENT")
 
 # 1. Read the species_q_numbers.csv file and build a mapping.
 # Expected columns: "Scientific Name","Wikidata Q-number"
@@ -17,7 +23,7 @@ end_date = datetime.strptime("2023-02-05", "%Y-%m-%d")  #as available in https:/
 
 
 #To test use code below
-#end_date = start_date + timedelta(days=5)  # First 15 days (inclusive)
+#end_date = start_date + timedelta(days=5)  # First 5 days (inclusive)
 #all_dates = [(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range(5)]
 
 all_dates = [(start_date + timedelta(days=i)).strftime("%Y-%m-%d") for i in range((end_date - start_date).days + 1)]
@@ -38,7 +44,7 @@ print(f"Querying with missing dates: {missing_dates}")
 
 # 5. Wikimedia URL and headers
 base_url = "https://analytics.wikimedia.org/published/datasets/country_project_page_historical"
-headers = {"User-Agent": "iEcology_OneSTOP_EUProject/1.0 (simon.reynaert@plantentuinmeise.be)"}
+headers = {"User-Agent": USER_AGENT}
 
 # 6. Process each missing date.
 for date_str in missing_dates:

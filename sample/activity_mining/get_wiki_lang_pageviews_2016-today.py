@@ -1,19 +1,15 @@
-import subprocess
-import sys
+#load dependencies
 import pandas as pd
 import requests
 import time
 from datetime import datetime, timedelta
 import os
 import pytz
+from dotenv import load_dotenv
 
-# Ensure required packages are installed and up to date
-def install_and_update_packages(packages):
-    for package in packages:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
-
-required_packages = ['pandas', 'requests', 'pytz']
-install_and_update_packages(required_packages)
+#Load environment variables from a .env file for user agent identification
+load_dotenv()
+USER_AGENT = os.getenv("WIKI_USER_AGENT")
 
 # Load the Wikipedia sitelinks DataFrame
 sitelinks_df = pd.read_csv('species_wikipedia_sitelinks.csv')
@@ -23,10 +19,10 @@ BASE_URL = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article"
 
 # Custom User-Agent string
 HEADERS = {
-    "User-Agent": "iEcology_OneSTOP_EUProject/1.0 (simon.reynaert@plantentuinmeise.be)"
+    "User-Agent": USER_AGENT
 }
 
-# Define date range from January 2022 until yesterday (since today is not complete and will give zero pageviews wrongly)
+# Define date range from January 2016-01-01 until yesterday (since today is not complete and will give zero pageviews wrongly)
 utc = pytz.UTC
 today = datetime.now(utc).date()
 yesterday = today - timedelta(days=1)

@@ -1,3 +1,4 @@
+#load dependencies
 import os
 import time
 import random
@@ -5,6 +6,11 @@ import requests
 import pandas as pd
 from datetime import datetime, timedelta
 from io import StringIO
+from dotenv import load_dotenv
+
+# 0. Load environment variables from a .env file for user agent identification
+load_dotenv()
+USER_AGENT = os.getenv("WIKI_USER_AGENT")
 
 # 1. Read the species_q_numbers.csv file and build a mapping.
 # Expected columns: "Scientific Name","Wikidata Q-number"
@@ -37,9 +43,9 @@ else:
 missing_dates = [d for d in all_dates if d not in existing_date_cols]
 print(f"Querying with missing dates: {missing_dates}")
 
-# 5. Wikimedia URL and headers
+# 5. Wikimedia URL and headers (i.e. custom user agent string for identification)
 base_url = "https://analytics.wikimedia.org/published/datasets/country_project_page"
-headers = {"User-Agent": "iEcology_OneSTOP_EUProject/1.0 (simon.reynaert@plantentuinmeise.be)"}
+headers = {"User-Agent": USER_AGENT}
 
 # 6. Process each missing date.
 for date_str in missing_dates:

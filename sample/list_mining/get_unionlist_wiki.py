@@ -1,15 +1,5 @@
-import subprocess
+#import dependencies
 import sys
-
-# Ensure required packages are installed and up to date
-def install_and_update_packages(packages):
-    for package in packages:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", package])
-
-required_packages = ['pandas', 'beautifulsoup4', 'requests']
-install_and_update_packages(required_packages)
-
-# Import required libraries
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup

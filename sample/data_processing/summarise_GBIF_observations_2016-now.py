@@ -1,8 +1,10 @@
+#import dependencies
 import pandas as pd
 from dateutil import parser
 from datetime import timedelta
 from tqdm import tqdm 
 
+# date parsing functionwith handling for date ranges
 def parse_event_date(x):
     """
     Parse a date string using dateutil.

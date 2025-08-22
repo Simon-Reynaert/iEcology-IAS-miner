@@ -1,3 +1,4 @@
+#load dependencies
 import requests
 import csv
 import time
@@ -5,6 +6,7 @@ import os
 import pandas as pd
 from datetime import datetime
 
+#specify the inaturalist API endpoint
 base_url = "https://api.inaturalist.org/v1/observations"
 
 # Ensure the folder exists

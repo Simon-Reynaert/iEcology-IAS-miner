@@ -1,7 +1,8 @@
+#import dependencies
 import requests
 import csv
 
-# URL of the API
+# URL/endpoint of the API
 url = "https://easin.jrc.ec.europa.eu/apixg/catxg/euconcern"
 
 # Make a GET request to the API
