@@ -13,7 +13,7 @@ Currently this repository is still a work in progress, primarily used as test br
 
 | __Publications About the Library__ | TBA |
 | :--- | :--- |
-| __Packages and Releases__ |  [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Simon-Reynaert/IAScraper?logo=GitHub)](https://github.com/Simon-Reynaert/IAScraper/releases) |
+| __Packages and Releases__ |  [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Simon-Reynaert/iEcology-IAS-miner?logo=GitHub)](https://github.com/Simon-Reynaert/iEcology-IAS-miner/releases) |
 | __Build Status__ | TBA |
 | __JaCoCo Test Coverage__ | TBA |
 | __Security__ | TBA |
