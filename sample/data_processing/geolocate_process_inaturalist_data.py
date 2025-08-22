@@ -1,3 +1,4 @@
+#load dependencies
 import os
 import glob
 import pandas as pd
@@ -9,9 +10,9 @@ from datetime import datetime
 folder = "species_inat_observations_onlycasual"
 csv_files = glob.glob(os.path.join(folder, "*.csv"))
 
-###################
-# GEOLOCATE DATA  #
-###################
+##############################
+# GEOLOCATE iNAturalist DATA #
+##############################
 
 # Process each CSV file
 for file in csv_files:
