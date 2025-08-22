@@ -25,4 +25,4 @@ Currently this repository is still a work in progress, primarily used as test br
 You can install the development version of IAScraper from Github with:
 
 # Demonstration
-This Jupiter notebook file demonstrates the computation and visualizations of IAScraper, utilizing its different functions. 
+This Jupiter notebook file demonstrates the computation and visualizations of iEcology-IAS-miner, utilizing its different functions. 
