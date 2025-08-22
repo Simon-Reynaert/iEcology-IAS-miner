@@ -1,4 +1,4 @@
-# import dependencies
+# load dependencies
 import os
 import requests
 import zipfile
