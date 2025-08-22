@@ -1,4 +1,4 @@
-#import dependencies
+#load dependencies
 import pandas as pd
 from dateutil import parser
 from datetime import timedelta
