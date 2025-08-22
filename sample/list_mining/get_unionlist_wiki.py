@@ -1,4 +1,4 @@
-#import dependencies
+#load dependencies
 import sys
 import pandas as pd
 import requests
