@@ -31,7 +31,7 @@ if not flickr.token_valid(perms='read'):
 
 # --- EU country bounding boxes (min_lon, min_lat, max_lon, max_lat) ---
 eu_bounding_boxes = {
-    "EU": (-25, 34, 40, 72)  # Example bounding box for the entire EU
+    "EU": (-25, 34, 40, 72)  # Bounding box for the entire EU
 }
 
 # --- Load species list ---
@@ -78,8 +78,9 @@ for country, (min_lon, min_lat, max_lon, max_lat) in eu_bounding_boxes.items():
                     tags     = tags_query,
                     tag_mode = "any",       # return photos matching any of the above
                     bbox             = f"{min_lon},{min_lat},{max_lon},{max_lat}",
-                    min_taken_date   = "2022-01-01",
-                    max_taken_date   = datetime.now().strftime("%Y-%m-%d"),
+                    min_taken_date   = "2004-01-01",
+                    max_taken_date   = datetime.now().strftime("%Y-%m-%d"), #REMOVE # IN AUTOMATED WORKFLOW!
+                    #max_taken_date   = "2023-12-31", # Adjust as needed
                     has_geo          = 1,
                     extras           = "geo,date_taken,url_o,tags",
                     per_page         = 250,
@@ -134,12 +135,14 @@ for country, (min_lon, min_lat, max_lon, max_lat) in eu_bounding_boxes.items():
 
             if page >= photos.get('pages', 0):
                 break
+            print(f"📸 Found {len(photo_list)} photos for {sci_name} on page {page}.")
 
+            
             time.sleep(1)
             page += 1
-
-# --- Save results ---
-df = pd.DataFrame(results)
-output_file = "flickr_species_observations_eu_combined_latin_normtag.csv"
-df.to_csv(output_file, index=False)
-print(f"✅ Done — {len(df)} photos saved to {output_file}.")
+    
+        # Save progress periodically
+        df = pd.DataFrame(results)
+        output_file = "flickr_species_observations_eu_combined_latin_normtag_2004-now.csv" #adjust as needed
+        df.to_csv(output_file, index=False)
+        print(f"💾 Progress saved — {len(df)} photos so far.")

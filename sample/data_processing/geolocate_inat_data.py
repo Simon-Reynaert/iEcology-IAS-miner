@@ -10,7 +10,7 @@ from datetime import datetime
 #-------------------------#
 
 # Define the folder containing your CSV files
-folder = "species_inat_observations"
+folder = "species_inat_observations_onlycasual"
 csv_files = glob.glob(os.path.join(folder, "*.csv"))
 
 # Process each CSV file
@@ -61,7 +61,7 @@ for file in csv_files:
 #-----------------------------#
 
 # Define the folder containing your geolocated CSV files
-folder = "species_inat_observations"
+folder = "species_inat_observations_onlycasual"
 
 # Only search for CSV files with '_geolocated.csv' in their name
 csv_files = glob.glob(os.path.join(folder, "*_geolocated.csv"))
@@ -97,7 +97,7 @@ else:
     exit()
 
 # Create a date range from 2022-01-01 to today's date
-start_date = pd.to_datetime("2022-01-01")
+start_date = pd.to_datetime("2016-01-01")
 end_date = pd.to_datetime(datetime.today().strftime('%Y-%m-%d'))
 date_range = pd.date_range(start_date, end_date, freq='D')
 date_columns = [d.strftime('%Y-%m-%d') for d in date_range]
@@ -119,16 +119,40 @@ for date in date_columns:
     if date not in pivot_df.columns:
         pivot_df[date] = 0
 
-# Reorder columns in chronological order
-pivot_df = pivot_df[sorted(pivot_df.columns)]
+# Corrected: Sort the columns based on their actual date values
+# First, get the date columns (excluding 'Scientific Name' and 'Country' if they somehow got in there)
+current_date_cols = [col for col in pivot_df.columns if col not in ['Scientific Name', 'Country']]
+# Convert them to datetime objects for proper sorting, then back to string for column indexing
+sorted_date_cols = sorted(current_date_cols, key=lambda x: datetime.strptime(x, '%Y-%m-%d'))
+
+# Combine the fixed index columns with the sorted date columns
+fixed_columns = ['Scientific Name', 'Country'] # These should be at the beginning
+# We need to make sure these columns exist in pivot_df before indexing
+# In this specific case, 'Scientific Name' and 'Country' are part of the index before reset_index()
+# So, we'll sort columns *after* reset_index if we want them as regular columns at the start.
+# For now, let's just reorder the date columns.
+pivot_df = pivot_df[sorted_date_cols]
+
 
 # Reset the index so that 'Scientific Name' and 'Country' become columns again
 final_df = pivot_df.reset_index()
+
+# Now, ensure 'Scientific Name' and 'Country' are at the very beginning of the DataFrame
+# Get all columns and reorder them
+all_columns = final_df.columns.tolist()
+# Remove 'Scientific Name' and 'Country' from their current positions if they were already there from reset_index
+for col in ['Scientific Name', 'Country']:
+    if col in all_columns:
+        all_columns.remove(col)
+# Prepend them to the list of columns
+final_column_order = ['Scientific Name', 'Country'] + all_columns
+final_df = final_df[final_column_order]
+
 
 # Optionally sort the DataFrame by 'Scientific Name' and 'Country'
 final_df = final_df.sort_values(by=['Scientific Name', 'Country'])
 
 # Save the final merged DataFrame to a CSV file
-output_file = "species_country_observations_inat_2022_present.csv"
+output_file = "species_country_observations_inat_2016_present.csv"
 final_df.to_csv(output_file, index=False)
 print(f"Final merged CSV saved as: {output_file}")

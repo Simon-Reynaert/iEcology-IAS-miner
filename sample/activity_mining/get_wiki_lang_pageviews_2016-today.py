@@ -30,7 +30,7 @@ HEADERS = {
 utc = pytz.UTC
 today = datetime.now(utc).date()
 yesterday = today - timedelta(days=1)
-start_date = datetime(2022, 1, 1).strftime("%Y%m%d")
+start_date = datetime(2016, 1, 1).strftime("%Y%m%d")
 end_date = yesterday.strftime("%Y%m%d")  # Fetch up to yesterday
 
 def fetch_daily_pageviews(language, title, existing_dates=None, start_fetch_date=None):
@@ -71,11 +71,11 @@ def get_missing_dates(existing_df, date_columns):
     return [date for date in date_columns if date not in existing_dates]
 
 # Load existing data if it exists
-output_file = 'species_pageviews_analysis_2022_present.csv'
+output_file = 'species_pageviews_analysis_2016_present.csv'
 existing_data = load_existing_data(output_file)
 
 # Generate date columns
-date_columns = pd.date_range(start="2022-01-01", end=yesterday).strftime("%Y%m%d").tolist()
+date_columns = pd.date_range(start="2016-01-01", end=yesterday).strftime("%Y%m%d").tolist()
 
 # Get missing dates
 missing_dates = get_missing_dates(existing_data, date_columns)

@@ -8,7 +8,7 @@ from datetime import datetime
 base_url = "https://api.inaturalist.org/v1/observations"
 
 # Ensure the folder exists
-output_folder = 'species_inat_observations'
+output_folder = 'species_inat_observations_onlycasual'
 os.makedirs(output_folder, exist_ok=True)
 
 # Function to fetch observations per year
@@ -17,7 +17,7 @@ def fetch_new_observations(taxon_name, year, place_id, per_page=200):
     page = 1
     seen_ids = set()  # Track IDs to avoid duplicates
 
-    # Load existing IDs from CSV 
+    # Load existing IDs from CSV
     species_file_name = f"{taxon_name.replace(' ', '_')}_observations.csv"
     species_file_path = os.path.join(output_folder, species_file_name)
 
@@ -31,19 +31,20 @@ def fetch_new_observations(taxon_name, year, place_id, per_page=200):
     end_date = datetime.today().strftime('%Y-%m-%d') if year == datetime.today().year else f"{year}-12-31"
 
     while True:
-        print(f"Fetching {year}, page {page} for {taxon_name}...")
+        print(f"Fetching {year}, page {page} for {taxon_name} (non-research grade)...")
 
         response = requests.get(
-            base_url, 
+            base_url,
             params={
-                'taxon_name': taxon_name, 
-                'd1': start_date, 
-                'd2': end_date, 
+                'taxon_name': taxon_name,
+                'd1': start_date,
+                'd2': end_date,
                 'place_id': place_id,
-                'order_by': 'observed_on', 
+                'order_by': 'observed_on',
                 'order': 'asc',
-                'per_page': per_page, 
-                'page': page
+                'per_page': per_page,
+                'page': page,
+                'quality_grade': 'casual,needs_id' # Added to exclude research grade observations
             }
         )
 
@@ -90,7 +91,7 @@ def fetch_new_observations(taxon_name, year, place_id, per_page=200):
     print(f"Fetched {len(observations)} new observations for {taxon_name} in {year}.")
     return observations
 
-# Function to write new observations to CSV
+# Function to write new observations to CSV (no changes needed here)
 def write_observations_to_csv(species_name, observations):
     if not observations:
         print(f"No new observations to write for {species_name}.")
@@ -127,7 +128,7 @@ species_list = species_df['Scientific Name'].unique()
 
 # Define search parameters
 place_id = 97391  # Replace with actual place ID for Europe
-start_year = 2022
+start_year = 2016
 current_year = datetime.today().year
 years = list(range(start_year, current_year + 1))  # Fetch from 2022 until today
 

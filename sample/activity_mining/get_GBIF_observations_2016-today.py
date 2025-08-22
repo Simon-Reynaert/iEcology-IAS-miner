@@ -17,7 +17,7 @@ european_countries = [
 ]
 
 # Define the date range
-start_date = "2022-01-01"
+start_date = "2016-01-01"
 end_date = pd.Timestamp.today().strftime("%Y-%m-%d")
 
 # Filter cultivated records?
