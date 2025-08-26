@@ -48,7 +48,17 @@ scientific_names = (
 geolocator = Nominatim(user_agent="geo_flickr_scraper")
 
 def get_country_from_gps(lat, lon):
-    """Reverse‐geocode a (lat, lon) pair to find the country name."""
+    """
+    Reverse-geocode a (lat, lon) pair to find the country name.
+
+    Args:
+        lat (str or float): The latitude coordinate.
+        lon (str or float): The longitude coordinate.
+
+    Returns:
+        str: The name of the country.
+        None: If the geocoding fails.
+    """
     try:
         location = geolocator.reverse(f"{lat}, {lon}", language='en')
         address = location.raw.get('address', {})
