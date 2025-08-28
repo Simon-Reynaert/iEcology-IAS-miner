@@ -7,7 +7,7 @@ import requests
 import pandas as pd
 
 # Output folder for CSVs
-OUTPUT_FOLDER: str = "species_inat_observations_onlycasual_test"
+OUTPUT_FOLDER: str = "species_inat_observations_onlycasual"
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 # iNaturalist API endpoint
