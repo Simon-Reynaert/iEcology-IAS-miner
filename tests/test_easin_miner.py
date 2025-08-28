@@ -1,11 +1,11 @@
-# tests/test_easin_presence.py
+# tests/test_easin_miner.py
 
 import pytest
 from unittest.mock import patch
 import pandas as pd
 from pathlib import Path
 
-from src.activity_mining.get_IAS_presence_EASIN import fetch_easin_presence  # adjust path if needed
+from src.EASIN_mining_and_map_generation.get_IAS_presence_EASIN_final import fetch_easin_presence  # adjust path if needed
 
 
 @pytest.fixture
@@ -40,7 +40,7 @@ def mock_easin_response():
     ]
 
 
-@patch("src.activity_mining.get_IAS_presence_EASIN.requests.get")
+@patch("src.EASIN_mining_and_map_generation.get_IAS_presence_EASIN_final.requests.get")
 def test_fetch_easin_presence(mock_get, sample_input_csv, mock_easin_response, tmp_path):
     """Test fetch_easin_presence with multiple species and synonyms."""
     
