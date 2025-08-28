@@ -38,7 +38,7 @@ def fetch_easin_presence(
 
     # 3. Normalize helper
     def normalize(name: str) -> str:
-        """Remove authorship and lowercase the name."""
+        """Remove authorship of species and lowercase the name."""
         return re.sub(r"\s*\(.*?\)", "", (name or "")).strip().lower()
 
     # 4. Build presence and record maps
@@ -88,8 +88,8 @@ def fetch_easin_presence(
 
 
 if __name__ == "__main__":
-    INPUT_CSV = 'list_of_union_concern.csv'
-    OUTPUT_CSV = 'species_by_country_presence_EASIN.csv'
+    INPUT_CSV = 'list_of_union_concern.csv' # Input file of species
+    OUTPUT_CSV = 'species_by_country_presence_EASIN.csv' # Output file
 
     rows, missing = fetch_easin_presence(INPUT_CSV, OUTPUT_CSV)
 
