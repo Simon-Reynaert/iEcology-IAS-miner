@@ -28,7 +28,7 @@ You can install the development version of iEcology-IAS-miner from Github with:
 git clone https://github.com/Simon-Reynaert/iEcology-IAS-miner.git
 cd iEcology-IAS-miner
 
-# Optional: create a virtual environment
+# Optional: create a virtual environment (highly recommended!)
 python -m venv .venv
 # Activate the environment (Windows)
 .\.venv\Scripts\activate
