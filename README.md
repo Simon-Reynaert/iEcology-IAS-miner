@@ -14,7 +14,7 @@ Currently this repository is still a work in progress. Soon it will be integrate
 | __Publications About the Library__ | TBA |
 | :--- | :--- |
 | __Packages and Releases__ |  [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Simon-Reynaert/iEcology-IAS-miner?logo=GitHub)](https://github.com/Simon-Reynaert/iEcology-IAS-miner/releases) |
-| __Pytest Test Coverage__ | [![coverage](https://raw.githubusercontent.com/Simon-Reynaert/iEcology-IAS-miner/badges/jacoco.svg)](https://github.com/Simon-Reynaert/iEcology-IAS-miner/.github/workflows/tests.yml) [![branches coverage](https://raw.githubusercontent.com/Simon-Reynaert/iEcology-IAS-miner/badges/branches.svg)](https://github.com/Simon-Reynaert/iEcology-IAS-miner/.github/workflows/tests.yml) | |
+| __Pytest Test Coverage__ | [![coverage](https://raw.githubusercontent.com/Simon-Reynaert/iEcology-IAS-miner/badges/jacoco.svg)](https://github.com/Simon-Reynaert/iEcology-IAS-miner/actions/workflows/tests.yml) [![branches coverage](https://raw.githubusercontent.com/Simon-Reynaert/iEcology-IAS-miner/badges/branches.svg)](https://github.com/Simon-Reynaert/iEcology-IAS-miner/actions/workflows/tests.yml) | |
 | __Security__ | TBA |
 | __DOI__ | TBA |
 | __Other Information__ | TBA |
