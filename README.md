@@ -22,7 +22,7 @@ Currently this repository is still a work in progress. Soon it will be integrate
 | __Support__ | TBA |
 
 # Installation
-You can install the development version of IAScraper from Github with:
+You can install the development version of iEcology-IAS-miner from Github with:
 
 # Demonstration
 This Jupiter notebook file demonstrates the computation and visualizations of iEcology-IAS-miner, utilizing its different functions. 
