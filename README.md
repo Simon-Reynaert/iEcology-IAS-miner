@@ -1,6 +1,6 @@
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 [![Tests Passing](https://github.com/Simon-Reynaert/iEcology-IAS-miner/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/Simon-Reynaert/iEcology-IAS-miner/actions/workflows/tests.yml)
-
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # iEcology-IAS-miner
 
@@ -23,6 +23,21 @@ Currently this repository is still a work in progress. Soon it will be integrate
 
 # Installation
 You can install the development version of iEcology-IAS-miner from Github with:
+```bash
+# Clone the repository
+git clone https://github.com/Simon-Reynaert/iEcology-IAS-miner.git
+cd iEcology-IAS-miner
+
+# Optional: create a virtual environment
+python -m venv .venv
+# Activate the environment (Windows)
+.\.venv\Scripts\activate
+# Activate the environment (Linux/macOS)
+source .venv/bin/activate
+
+# Install dependencies
+pip install --upgrade pip
+pip install -r requirements.txt
 
 # Demonstration
 This Jupiter notebook file demonstrates the computation and visualizations of iEcology-IAS-miner, utilizing its different functions. 
