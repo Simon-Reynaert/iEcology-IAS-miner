@@ -38,6 +38,6 @@ source .venv/bin/activate
 # Install dependencies
 pip install --upgrade pip
 pip install -r requirements.txt
-
+```
 # Demonstration
 This Jupiter notebook file demonstrates the computation and visualizations of iEcology-IAS-miner, utilizing its different functions. 
