@@ -10,8 +10,8 @@ import math
 EU_SCHENGEN_EFTA_COUNTRIES = {
     'AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR',
     'DE', 'GR', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL',
-    'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE',  # EU
-    'IS', 'LI', 'NO', 'CH','GB'                    # EFTA / Schengen / UK
+    'PL', 'PT', 'RO', 'SK', 'SI', 'ES', 'SE', 
+    'IS', 'LI', 'NO', 'CH', 'GB', 'MK', 'BA', 'RS', 'AL', 'ME', 'XK'                     
 }
 
 #derive country name from country code
