@@ -50,8 +50,6 @@ def generate_species_maps(csv_file, shapefile_dir, map_output_dir):
     df.rename(columns={"scientific_name": "species"}, inplace=True)
     df["country"] = df["country"].str.strip().str.upper().replace({"UK": "GB", "EL": "GR"})
 
-    print(df[df["country"].isin(["FR", "NO"])])
-
     # Function to generate folium map for one species
     def generate_folium_map(species_name, species_df):
         m = folium.Map(location=[54, 15], zoom_start=4)
