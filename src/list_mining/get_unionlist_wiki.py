@@ -163,7 +163,7 @@ def fetch_sitelinks(q_number: str) -> Dict[str, Any]:
         return sitelinks
 
 
-def run_easin_sitelinks_pipeline(
+def run_wiki_sitelinks_pipeline(
     wiki_url: str = 'https://en.wikipedia.org/wiki/'
                     'List_of_invasive_alien_species_of_Union_concern',
     q_number_file: str = 'species_q_numbers.csv',
@@ -253,7 +253,7 @@ def main():
     sitelinks_output = 'species_wikipedia_sitelinks.csv'
     
     # Run the pipeline
-    q_df, links_df = run_easin_sitelinks_pipeline(
+    q_df, links_df = run_wiki_sitelinks_pipeline(
         wiki_url,
         q_number_output,
         sitelinks_output

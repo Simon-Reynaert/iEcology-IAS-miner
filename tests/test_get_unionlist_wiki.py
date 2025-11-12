@@ -1,5 +1,5 @@
 """
-Unit tests for the EASIN sitelinks pipeline.
+Unit tests for the wiki sitelinks pipeline.
 
 Tests the core functions for extracting scientific names, fetching Q-numbers,
 and retrieving Wikipedia sitelinks.
@@ -15,7 +15,7 @@ from src.list_mining.get_unionlist_wiki import (
     get_wikidata_q_number,
     fetch_sitelinks,
     fetch_webpage_content,
-    run_easin_sitelinks_pipeline,
+    run_wiki_sitelinks_pipeline,
     EU_LANGUAGES
 )
 
@@ -283,7 +283,7 @@ class TestFetchWebpageContent:
         assert "Error fetching URL" in captured.out
 
 
-class TestRunEASINSitelinksPipeline:
+class TestRunWikiSitelinksPipeline:
     """Tests for the main pipeline function."""
     
     def test_pipeline_with_failed_fetch(
@@ -299,7 +299,7 @@ class TestRunEASINSitelinksPipeline:
         q_file = tmp_path / "test_q.csv"
         s_file = tmp_path / "test_s.csv"
         
-        df_q, df_s = run_easin_sitelinks_pipeline(
+        df_q, df_s = run_wiki_sitelinks_pipeline(
             wiki_url=url,
             q_number_file=str(q_file),
             sitelinks_file=str(s_file)
@@ -328,7 +328,7 @@ class TestRunEASINSitelinksPipeline:
         q_file = tmp_path / "test_q.csv"
         s_file = tmp_path / "test_s.csv"
         
-        df_q, df_s = run_easin_sitelinks_pipeline(
+        df_q, df_s = run_wiki_sitelinks_pipeline(
             wiki_url=url,
             q_number_file=str(q_file),
             sitelinks_file=str(s_file)
@@ -369,7 +369,7 @@ class TestRunEASINSitelinksPipeline:
         s_file = tmp_path / "test_s.csv"
         
         # Run pipeline
-        df_q, df_s = run_easin_sitelinks_pipeline(
+        df_q, df_s = run_wiki_sitelinks_pipeline(
             wiki_url=wiki_url,
             q_number_file=str(q_file),
             sitelinks_file=str(s_file)
