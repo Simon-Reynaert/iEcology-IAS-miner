@@ -42,10 +42,10 @@ pip install -r requirements.txt
 # Run all tests to verify installation
 pytest --maxfail=1 --disable-warnings -q
 ```
-# Example workflow demonstration
-More detailed code demonstrations can be found on the documentation website (https://iecology-ias-miner.readthedocs.io/en/latest/index.html) or in the /scripts or /docs subdirectories.
+# Example workflows
+More workflow examples can be found on the documentation website (https://iecology-ias-miner.readthedocs.io/en/latest/index.html) or in the /scripts or /docs subdirectories.
 
-# Demonstrative workflow for the automated downloading and identification to species level of geolocated Flickr images
+# Demonstration of the automated downloading and identification to species level of geolocated Flickr images
 
 In this notebook, we show the minimal workflow for the automated fetching and to species-level identification of geolocated Flickr images. Images are fetched through the Flickr API based on fuzzy keyword matches with any tags (title, description, keywords), after which the image urls are used to download images locally and files are sent for species-level classification by machine vision models through their respective API's (e.g., pl@ntnet), which responds with an identification rank and associated probability of exact species match. No manual verification of the final classified images is performed afterwards, but the script checks if the queried species keyword in the Flickr API corresponds with the first rank of the machine vision model API response, to only retain images that have a very high likelihood for being the species of interest, thus reflecting 'true' occurrences. 
 
