@@ -1,4 +1,4 @@
-Welcome to iEcology IAS Miner Documentation
+Welcome to iEcology-IAS-Miner Documentation
 ===========================================
 
 **iEcology-IAS-miner** allows users to seamlessly extract data from a variety 
