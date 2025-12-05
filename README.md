@@ -14,13 +14,11 @@ The goal of **iEcology-IAS-miner** is to allow users to seamlessly extract data 
 Currently this repository is still a work in progress. Soon it will be integrated within the OneSTOP repository.  
 
 | __Publications About the Library__ | TBA |
-| :--- | :--- |
 | __Packages and Releases__ |  [![GitHub release (latest by date)](https://img.shields.io/github/v/release/Simon-Reynaert/iEcology-IAS-miner?logo=GitHub)](https://github.com/Simon-Reynaert/iEcology-IAS-miner/releases) |
 | __Pytest Test Coverage__ | [![coverage](https://img.shields.io/codecov/c/github/Simon-Reynaert/iEcology-IAS-miner/main?style=flat-square)](https://codecov.io/gh/Simon-Reynaert/iEcology-IAS-miner) |
-| __Security__ | TBA |
 | __DOI__ | TBA |
-| __Other Information__ | TBA |
-| __Support__ | TBA |
+| __Contact Information__ | simon.reynaert@plantentuinmeise.be
+| __Documentation__ | [![Docs](https://readthedocs.org/projects/iecology-ias-miner/badge/?version=latest)](https://iecology-ias-miner.readthedocs.io/en/latest/index.html)
 
 # Installation
 You can install the development version of iEcology-IAS-miner from Github with:
@@ -44,4 +42,4 @@ pip install -r requirements.txt
 pytest --maxfail=1 --disable-warnings -q
 ```
 # Demonstration
-This Jupiter notebook file demonstrates the computation and visualizations of iEcology-IAS-miner, utilizing its different functions. 
+Jupyter notebook demonstrations can found on the documentation website (https://iecology-ias-miner.readthedocs.io/en/latest/index.html) or in the /scripts or /docs subdirectory
