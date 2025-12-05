@@ -781,4 +781,4 @@ Image(map_file_path)
 
 
     
-![png](Demonstration_flickr_img_to_obs_files/Demonstration_flickr_img_to_obs_14_3.png)
+![png](scripts/Demonstration_flickr_img_to_obs_files/Demonstration_flickr_img_to_obs_14_3.png)
