@@ -202,7 +202,7 @@ def run_wiki_sitelinks_pipeline(
     # --- Step 2: Get Wikidata Q-numbers ---
     print("Step 2/4: Getting Wikidata Q-numbers (This may take time)...")
     df_q_numbers['Wikidata Q-number'] = (
-        df_q_numbers['Scientific Name'].progress_apply(get_wikidata_q_number)
+        df_q_numbers['Scientific Name'].progress_map(get_wikidata_q_number)
     )
     
     # --- Step 3: Fetch sitelinks ---
