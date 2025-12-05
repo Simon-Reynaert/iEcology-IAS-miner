@@ -3,7 +3,7 @@ import sys
 
 # Add src folder to path
 sys.path.insert(0, os.path.abspath('../src'))
-sys.path.insert(0, os.path.abspath('../../scripts'))
+sys.path.insert(0, os.path.abspath('../../scripts/scripts'))
 
 # Project information
 project = 'iEcology IAS Miner'
