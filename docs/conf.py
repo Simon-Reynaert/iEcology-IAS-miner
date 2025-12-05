@@ -16,15 +16,19 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
+    'myst_nb', # to support Jupyter Notebooks
 ]
 
 # Autosummary settings
 autosummary_generate = True
 
 # Use the Read the Docs theme
-html_theme = 'alabaster'
+html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
 # Other settings
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
+#notebook output included
+nb_execution_mode="off"

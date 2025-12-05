@@ -24,9 +24,11 @@ Installation
 Quick Start
 ===========
 
-.. code-block:: python
-
-   # Example usage here
+.. toctree::
+   :maxdepth: 1
+   
+   scripts/workflow_demonstration
+   scripts/Demonstration_flickr_img_to_obs
 
 Contents
 ========
