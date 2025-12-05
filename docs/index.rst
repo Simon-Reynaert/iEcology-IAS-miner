@@ -21,7 +21,7 @@ Installation
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
    pip install -r requirements.txt
 
-Quick Start
+Demonstrations
 ===========
 
 .. toctree::
@@ -29,7 +29,7 @@ Quick Start
    
    scripts/workflow_demonstration
    scripts/Demonstration_flickr_img_to_obs
-
+   
 Contents
 ========
 

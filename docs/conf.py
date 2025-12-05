@@ -3,6 +3,7 @@ import sys
 
 # Add src folder to path
 sys.path.insert(0, os.path.abspath('../src'))
+sys.path.insert(0, os.path.abspath('../../scripts'))
 
 # Project information
 project = 'iEcology IAS Miner'
@@ -32,3 +33,9 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 #notebook output included
 nb_execution_mode="off"
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.md': 'markdown',
+    '.ipynb': 'jupyter_notebook', 
+}
