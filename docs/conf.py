@@ -23,6 +23,7 @@ autosummary_generate = True
 
 # Use the Read the Docs theme
 html_theme = 'alabaster'
+html_static_path = ['_static']
 
 # Other settings
 templates_path = ['_templates']
