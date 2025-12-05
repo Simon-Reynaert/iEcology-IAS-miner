@@ -356,7 +356,7 @@ def process_inat_data(input_folder, output_file, start_date=None, end_date=None,
 # Entry point for running as a standalone script
 if __name__ == "__main__":
     # Configuration for the processing pipeline
-    input_folder = "species_inat_observations_onlycasual"  # Folder with raw observation CSVs
+    input_folder = "species_inat_observations_nonresearch"  # Folder with raw observation CSVs
     output_file = "species_country_observations_inat_2016_present.csv"  # Final output file
     geolocated_folder = None  # Optional: specify separate folder for intermediate geolocated CSVs
     

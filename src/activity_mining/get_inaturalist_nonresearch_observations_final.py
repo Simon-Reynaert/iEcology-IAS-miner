@@ -30,10 +30,8 @@ def get_taxon_id(scientific_name: str) -> Optional[int]:
         results = response.json().get("results", [])
         if results and results[0].get("id"):
             taxon_id = results[0]["id"]
-            # print(f"Resolved {scientific_name} → taxon_id={taxon_id}") # Suppress for cleaner notebook progress
             return taxon_id
         
-        # print(f"⚠️ No primary taxon ID found for {scientific_name}. Querying by name instead.") # Suppress for cleaner notebook progress
     except requests.exceptions.RequestException as e:
         print(f"Error resolving taxon ID for {scientific_name}: {e}")
     except Exception as e:
@@ -69,7 +67,6 @@ def fetch_observations_by_date_range(
         try:
             df_existing = pd.read_csv(species_file_path, usecols=['id'], low_memory=False)
             seen_ids.update(df_existing['id'].astype(str))
-            # print(f"Loaded {len(seen_ids)} existing IDs for {taxon_name}.") # Suppress for cleaner notebook progress
         except Exception as e:
             print(f"Error reading existing CSV {species_file_path}: {e}")
 
@@ -138,8 +135,7 @@ def write_observations_to_csv(
     Append new non-research observations (casual + needs_id) to the species CSV file.
     """
     if not observations:
-        # print(f"No new observations to write for {species_name}.") # Suppress for cleaner notebook progress
-        return
+        return None
 
     species_file_name: str = f"{species_name.replace(' ', '_')}_observations.csv"
     species_file_path: str = os.path.join(output_folder, species_file_name)
@@ -168,9 +164,6 @@ def write_observations_to_csv(
                 'longitude': longitude,
                 'quality': obs.get("quality_grade", "")
             })
-
-    # print(f"Appended {len(observations)} new non-research (casual + needs_id) observations for {species_name}.") # Suppress for cleaner notebook progress
-
 
 # ----------------------------------------------------------------------
 ## 🚀 Main Pipeline Function for Notebook Utility
@@ -238,26 +231,26 @@ def run_inat_pipeline(
 
 
 # ----------------------------------------------------------------------
-## 📌 Main Execution Block (Simplified Example)
+## Main Execution Block 
 # ----------------------------------------------------------------------
 
 if __name__ == "__main__":
     # Example of how a notebook user would call this function:
     
     # Define the parameters cleanly using YYYY-MM-DD strings
-    SPECIES_INPUT = 'species_q_numbers.csv' 
-    EU_PLACE_ID = 97391 # Example: European Union
+    species_input = 'unionconcern_invasive_species_qnumbers_2025.csv' 
+    eu_place_id = 97391 # Example: European Union
     
     # Date range for a specific project timeline (e.g., last 5 full years)
-    START_DATE = '2020-01-01'
-    END_DATE = '2024-12-31'
+    start_date = '2016-01-01'
+    end_date = '2025-07-15'
     
     # Call the function and capture the output DataFrames/Lists
     species_df_out, processed_list = run_inat_pipeline(
-        species_csv_path=SPECIES_INPUT, 
-        place_id=EU_PLACE_ID,
-        start_date=START_DATE,
-        end_date=END_DATE
+        species_csv_path=species_input, 
+        place_id=eu_place_id,
+        start_date=start_date,
+        end_date=end_date
     )
     
     # Print a summary of the results
