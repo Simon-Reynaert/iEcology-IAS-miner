@@ -18,13 +18,14 @@ class TestEasinApiProcessing(unittest.TestCase):
     def test_fetch_and_process_success(self, mock_file, mock_requests_get):
         """
         Tests that the script correctly fetches, processes, and writes data
-        from a successful API response.
+        from a successful API response, including the EASINID.
         """
-        # --- Mock a successful API response ---
+        # --- Mock a successful API response (UPDATED: Added EASINID) ---
         mock_response = MagicMock()
         mock_response.status_code = 200
         mock_response.json.return_value = [
             {
+                "EASINID": "R123", # <--- NEW FIELD ADDED
                 "Name": "Species A",
                 "CommonNames": [
                     {"Name": "Common Name A1"},
@@ -36,8 +37,9 @@ class TestEasinApiProcessing(unittest.TestCase):
                 ]
             },
             {
+                "EASINID": "R456", # <--- NEW FIELD ADDED
                 "Name": "Species B",
-                "CommonNames": [],
+                "CommonNames": None, # <--- Mocking None to test the 'or []' fix
                 "Synonyms": [
                     {"Synonym": "Synonym B1"}
                 ]
@@ -61,25 +63,28 @@ class TestEasinApiProcessing(unittest.TestCase):
         # Check the data that was written to the file
         written_data = mock_file().write.call_args_list
         
-        # Expected rows including the header
+        # Expected rows including the header (UPDATED: EASINID added to header and all rows)
         expected_rows = [
-            'Scientific Name,Label,All Names\r\n',
-            'Species A,Common Name,Common Name A1\r\n',
-            'Species A,Common Name,Common Name A2\r\n',
-            'Species A,Synonym,Synonym A1\r\n',
-            'Species A,Synonym,Synonym A2\r\n',
-            'Species B,Synonym,Synonym B1\r\n'
+            'EASINID,Scientific Name,Label,All Names\r\n', # <--- HEADER UPDATED
+            'R123,Species A,Common Name,Common Name A1\r\n', # <--- ROW UPDATED
+            'R123,Species A,Common Name,Common Name A2\r\n', # <--- ROW UPDATED
+            'R123,Species A,Synonym,Synonym A1\r\n', # <--- ROW UPDATED
+            'R123,Species A,Synonym,Synonym A2\r\n', # <--- ROW UPDATED
+            'R456,Species B,Synonym,Synonym B1\r\n' # <--- ROW UPDATED (CommonNames=None is skipped)
         ]
 
         # Verify each line was written correctly
+        # NOTE: Comparing the first argument of the first call's positional args
         for i, row in enumerate(expected_rows):
             self.assertEqual(written_data[i][0][0], row)
+
 
     @patch("list_mining.get_EASIN_unionlistofconcern.requests.get", side_effect=requests.exceptions.RequestException)
     @patch("list_mining.get_EASIN_unionlistofconcern.open")
     def test_fetch_and_process_failure(self, mock_file, mock_requests_get):
         """
         Tests that the script handles a failed API call gracefully.
+        (No changes needed here)
         """
         test_url = "http://test-api.com"
         test_output_file = "test_output.csv"
@@ -92,11 +97,9 @@ class TestEasinApiProcessing(unittest.TestCase):
             mock_file.assert_not_called()
             
             # Get the arguments that were passed to the write() method
-            # `call_args_list` returns a list of tuples, where each tuple is `(args, kwargs)`.
             captured_output_calls = mock_stdout.write.call_args_list
             
             # Convert the captured calls to a single string for easier assertion.
-            # We're checking for the presence of the error message, not the exact string.
             full_captured_output = "".join([call[0][0] for call in captured_output_calls])
             
             # Verify that the failure message was printed

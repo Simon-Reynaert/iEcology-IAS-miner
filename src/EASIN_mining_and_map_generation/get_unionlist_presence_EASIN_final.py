@@ -4,6 +4,7 @@ import pandas as pd
 
 EU_CONCERN_URL = 'https://easin.jrc.ec.europa.eu/apixg/catxg/euconcern'
 
+
 def fetch_easin_presence(
     input_csv: str,
     output_csv: str,
@@ -21,80 +22,95 @@ def fetch_easin_presence(
     Returns:
         tuple[list[dict], list[str]]: 
             - rows: List of dicts, each representing a species-country presence entry.
-            - missing: List of species from input that had no confirmed match in EASIN.
+            - missing_species: List of species from input that had no confirmed match in EASIN.
     """
     # 1. Load CSV
-    union_df = pd.read_csv(input_csv)
-    cols = {c.lower(): c for c in union_df.columns}
-    col_name = cols.get('scientific name') or cols.get('scientific_name')
-    if not col_name:
+    species_df = pd.read_csv(input_csv)
+    lower_columns = {column.lower(): column for column in species_df.columns}
+    species_column_name = lower_columns.get('scientific name') or lower_columns.get('scientific_name')
+    if not species_column_name:
         raise KeyError("Input CSV needs a 'Scientific Name' or 'scientific_name' column")
-    union_species = sorted(union_df[col_name].str.strip())
+    
+    species_list = sorted(species_df[species_column_name].str.strip())
 
-    # 2. Fetch EU concern species
-    resp = requests.get(eu_concern_url)
-    resp.raise_for_status()
-    records = resp.json()
+    # 2. Fetch EU concern species from API
+    response = requests.get(eu_concern_url)
+    response.raise_for_status()
+    api_records = response.json()
 
-    # 3. Normalize helper
-    def normalize(name: str) -> str:
+    # 3. Helper function to normalize species names
+    def normalize_species_name(name: str) -> str:
         """Remove authorship of species and lowercase the name."""
         return re.sub(r"\s*\(.*?\)", "", (name or "")).strip().lower()
 
     # 4. Build presence and record maps
     presence_map: dict[str, set[str]] = {}
     record_map: dict[str, dict] = {}
-    for rec in records:
-        present = {e['Country'] for e in (rec.get('PresentInCountries') or []) if e.get('Country')}
-        keys = [rec.get('Name'), rec.get('EUConcernName')] + [s.get('Synonym') for s in (rec.get('Synonyms') or [])]
-        for raw in keys:
-            if isinstance(raw, str) and raw.strip():
-                k = normalize(raw)
-                presence_map[k] = present
-                record_map.setdefault(k, rec)
 
-    # 5. Countries
-    all_countries = sorted({c for pres in presence_map.values() for c in pres})
+    for record in api_records:
+        present_countries = {
+            country_info['Country']
+            for country_info in (record.get('PresentInCountries') or [])
+            if country_info.get('Country')
+        }
 
-    # 6. Assemble rows
+        name_keys = [record.get('Name'), record.get('EUConcernName')]
+        name_keys += [syn.get('Synonym') for syn in (record.get('Synonyms') or [])]
+
+        for raw_name in name_keys:
+            if isinstance(raw_name, str) and raw_name.strip():
+                normalized_name = normalize_species_name(raw_name)
+                presence_map[normalized_name] = present_countries
+                record_map.setdefault(normalized_name, record)
+
+    # 5. All countries observed across all species
+    all_countries = sorted({country for countries in presence_map.values() for country in countries})
+
+    # 6. Assemble rows for CSV
     rows: list[dict] = []
-    missing: list[str] = []
-    for sp in union_species:
-        nsp = normalize(sp)
-        pres = presence_map.get(nsp, set())
-        rec = record_map.get(nsp)
+    missing_species: list[str] = []
 
-        if not pres:
-            candidates = [(k, r) for k, r in record_map.items() if nsp in k or k in nsp]
-            if candidates:
-                key, rec = candidates[0]
-                pres = presence_map[key]
+    for species in species_list:
+        normalized_species = normalize_species_name(species)
+        species_presence = presence_map.get(normalized_species, set())
+        species_record = record_map.get(normalized_species)
+
+        # Fallback to partial matches if exact match not found
+        if not species_presence:
+            matching_candidates = [
+                (key, record)
+                for key, record in record_map.items()
+                if normalized_species in key or key in normalized_species
+            ]
+            if matching_candidates:
+                match_key, species_record = matching_candidates[0]
+                species_presence = presence_map[match_key]
             else:
-                missing.append(sp)
+                missing_species.append(species)
 
-        easin_id = rec.get('EASINID') if rec else None
+        easin_id = species_record.get('EASINID') if species_record else None
 
         for country in all_countries:
             rows.append({
-                'scientific_name': sp,
+                'scientific_name': species,
                 'easin_id': easin_id,
                 'country': country,
-                'present': 'yes' if country in pres else 'no'
+                'present': 'yes' if country in species_presence else 'no'
             })
 
     # 7. Save to CSV
     pd.DataFrame(rows).to_csv(output_csv, index=False)
-    return rows, missing
+    return rows, missing_species
 
 
 if __name__ == "__main__":
-    INPUT_CSV = 'list_of_union_concern.csv' # Input file of species
-    OUTPUT_CSV = 'species_by_country_presence_EASIN.csv' # Output file
+    input_csv_path = 'list_of_union_concern.csv'  # Input file of species
+    output_csv_path = 'species_by_country_presence_EASIN.csv'  # Output file
 
-    rows, missing = fetch_easin_presence(INPUT_CSV, OUTPUT_CSV)
+    rows, missing_species = fetch_easin_presence(input_csv_path, output_csv_path)
 
-    print(f"\nDone. {len(rows)} rows written to {OUTPUT_CSV}.")
-    if missing:
+    print(f"\nDone. {len(rows)} rows written to {output_csv_path}.")
+    if missing_species:
         print("\nSpecies with no confirmed presence (and suggested matches above):")
-        for sp in missing:
-            print(" -", sp)
+        for species in missing_species:
+            print(" -", species)

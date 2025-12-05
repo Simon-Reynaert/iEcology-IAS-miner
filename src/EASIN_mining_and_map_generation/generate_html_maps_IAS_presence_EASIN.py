@@ -1,4 +1,3 @@
-# load dependencies
 import os
 import requests
 import zipfile
@@ -8,12 +7,26 @@ import folium
 
 def generate_species_maps(csv_file, shapefile_dir, map_output_dir):
     """
-    Generates maps for species presence based on a CSV and a shapefile.
+    Generates interactive HTML maps showing the presence of species across European countries.
+
+    The function reads a CSV file containing species presence data by country, 
+    downloads and prepares a Natural Earth shapefile (if not already available), 
+    and creates individual folium-based HTML maps for each species, highlighting 
+    countries in red (present) or gray (absent).
 
     Args:
-        csv_file (str): Path to the input CSV file.
-        shapefile_dir (str): Directory for the shapefile.
-        map_output_dir (str): Directory for saving the maps.
+        csv_file (str): Path to the input CSV file containing species presence data.
+            Must include columns: 'scientific_name' (or 'species'), 'country', and 'present'.
+        shapefile_dir (str): Directory for storing or locating the Natural Earth shapefile.
+        map_output_dir (str): Directory where the generated HTML maps will be saved.
+
+    Returns:
+        list[str]: A list of file paths to the generated HTML maps.
+
+    Side Effects:
+        - Downloads and extracts the Natural Earth shapefile if not already present.
+        - Creates directories if they do not exist.
+        - Saves one HTML map per species in `map_output_dir`.
     """
     shapefile_name = "ne_110m_admin_0_countries"
     zip_path = os.path.join(shapefile_dir, f"{shapefile_name}.zip")
@@ -29,7 +42,7 @@ def generate_species_maps(csv_file, shapefile_dir, map_output_dir):
         print("Downloading Natural Earth shapefile...")
         try:
             response = requests.get(url, stream=True)
-            response.raise_for_status()  # Raise an exception for bad status codes
+            response.raise_for_status()
             with open(zip_path, "wb") as f:
                 f.write(response.content)
             with zipfile.ZipFile(zip_path, "r") as zip_ref:
@@ -38,7 +51,7 @@ def generate_species_maps(csv_file, shapefile_dir, map_output_dir):
             print("Shapefile downloaded and extracted.")
         except requests.exceptions.RequestException:
             print("Failed to download Natural Earth shapefile")
-            return  # Exit the function gracefully
+            return []  # Return empty list if download fails
 
     # Load shapefile and filter for Europe
     world = gpd.read_file(shapefile_path)
@@ -50,13 +63,9 @@ def generate_species_maps(csv_file, shapefile_dir, map_output_dir):
     df.rename(columns={"scientific_name": "species"}, inplace=True)
     df["country"] = df["country"].str.strip().str.upper().replace({"UK": "GB", "EL": "GR"})
 
-    print(df[df["country"].isin(["FR", "NO"])])
-
     # Function to generate folium map for one species
     def generate_folium_map(species_name, species_df):
         m = folium.Map(location=[54, 15], zoom_start=4)
-
-        # Merge with geo data
         merged = europe.merge(species_df, how="left", left_on="ISO_A2_EH", right_on="country")
 
         for _, row in merged.iterrows():
@@ -97,6 +106,7 @@ def generate_species_maps(csv_file, shapefile_dir, map_output_dir):
         return m
 
     # Generate maps for all species
+    generated_maps = []
     species_list = df["species"].unique()
     for species in species_list:
         species_df = df[df["species"] == species]
@@ -104,8 +114,11 @@ def generate_species_maps(csv_file, shapefile_dir, map_output_dir):
         map_filename = os.path.join(map_output_dir, f"{species.replace(' ', '_')}_map.html")
         print(f"Saving map for {species} → {map_filename}")
         folium_map.save(map_filename)
+        generated_maps.append(map_filename)
 
     print("✅ All maps generated successfully.")
+    return generated_maps
+
 
 # Main script execution
 if __name__ == "__main__":

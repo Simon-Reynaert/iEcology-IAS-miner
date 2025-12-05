@@ -6,14 +6,19 @@ import glob
 import pandas as pd
 import numpy as np
 
-# Add the parent directory to the Python path for module discovery.
-# This assumes the script is located in src/ and the tests in tests/.
+# Add the src directory to the Python path
+# Go up one level from tests/, then into src/
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
 
-from data_processing.geolocate_process_inaturalist_data import _lookup_country, geolocate_and_save_files, join_and_pivot_data
+from data_processing.geolocate_process_inaturalist_data import (
+    _lookup_country,
+    geolocate_csv_file,
+    geolocate_folder,
+    join_and_pivot_geolocated
+)
 
 class TestINatProcessing(unittest.TestCase):
-    
+
     # --- Unit Test for the helper function ---
     def test_lookup_country(self):
         """Test the core country lookup logic."""
@@ -29,95 +34,84 @@ class TestINatProcessing(unittest.TestCase):
         # Test with missing coordinates
         row = pd.Series({'latitude': np.nan, 'longitude': 2.3522, 'Country': ""})
         self.assertEqual(_lookup_country(row), "")
-        
+
         # Test with lookup failure
         row = pd.Series({'latitude': 48.8566, 'longitude': 2.3522, 'Country': ""})
         with patch('data_processing.geolocate_process_inaturalist_data.rg.search', side_effect=Exception('Lookup failed')):
             self.assertEqual(_lookup_country(row), "")
 
-    # --- Integration Test for the first pipeline step ---
-    @patch('data_processing.geolocate_process_inaturalist_data.os.path.join', side_effect=lambda *args: '/'.join(args))
-    @patch('data_processing.geolocate_process_inaturalist_data.glob.glob')
+    # --- Integration Test for geolocate_csv_file ---
     @patch('data_processing.geolocate_process_inaturalist_data.pd.read_csv')
-    @patch('data_processing.geolocate_process_inaturalist_data.pd.DataFrame.apply')
     @patch('data_processing.geolocate_process_inaturalist_data.pd.DataFrame.to_csv')
-    def test_geolocate_and_save_files(self, mock_to_csv, mock_apply, mock_read_csv, mock_glob, mock_join):
-        """Tests that geolocation is applied and files are saved correctly."""
-        # Mock glob to return a list of fake files
-        mock_glob.return_value = ["test_folder/species_A_observations.csv", "test_folder/species_B_observations.csv"]
-        
-        # Mock the DataFrame that read_csv will return
+    @patch('data_processing.geolocate_process_inaturalist_data.rg.search')
+    def test_geolocate_csv_file(self, mock_rg_search, mock_to_csv, mock_read_csv):
+        """Tests geolocate_csv_file applies geolocation and saves correctly."""
         mock_read_csv.return_value = pd.DataFrame({
-            'latitude': [52.5200],
-            'longitude': [13.4050],
+            'latitude': [52.52],
+            'longitude': [13.405],
             'Country': [""]
         })
-        
-        # Mock the `apply` method to return a pre-determined result
-        mock_apply.return_value = pd.Series(["DE"])
+        # Mock the reverse geocoder search
+        mock_rg_search.return_value = [{'cc': 'DE'}]
 
-        # Execute the function
-        geolocate_and_save_files("test_folder")
-        
-        # Verify that read_csv was called for both files
-        self.assertEqual(mock_read_csv.call_count, 2)
-        
-        # Verify that the geolocate function was applied
-        mock_apply.assert_called()
+        df = geolocate_csv_file("input.csv", "output.csv")
 
-        # Verify that to_csv was called for both new files
-        self.assertEqual(mock_to_csv.call_count, 2)
-        
-        # Verify that the correct output paths were used
-        save_calls = [args[0] for args, kwargs in mock_to_csv.call_args_list]
-        self.assertIn('test_folder/species_A_geolocated.csv', save_calls)
-        self.assertIn('test_folder/species_B_geolocated.csv', save_calls)
+        # Verify rg.search was called
+        mock_rg_search.assert_called()
+        # Verify to_csv was called with index=False
+        mock_to_csv.assert_called_once_with("output.csv", index=False)
+        # Check that the returned DataFrame has the expected 'Country' values
+        self.assertEqual(df['Country'].iloc[0], 'DE')
 
-    # --- Integration Test for the second pipeline step ---
-    @patch('data_processing.geolocate_process_inaturalist_data.os.path.join', side_effect=lambda *args: '/'.join(args))
+    # --- Integration Test for geolocate_folder ---
+    @patch('data_processing.geolocate_process_inaturalist_data.os.makedirs')
+    @patch('data_processing.geolocate_process_inaturalist_data.geolocate_csv_file')
+    @patch('data_processing.geolocate_process_inaturalist_data.glob.glob')
+    def test_geolocate_folder(self, mock_glob, mock_csv_file, mock_makedirs):
+        """Tests geolocate_folder calls geolocate_csv_file for each CSV."""
+        mock_glob.return_value = ["input_folder/file1_observations.csv", "input_folder/file2_observations.csv"]
+        mock_csv_file.side_effect = [pd.DataFrame({'A':[1]}), pd.DataFrame({'A':[2]})]
+
+        dfs = geolocate_folder("input_folder", "output_folder")
+        self.assertEqual(len(dfs), 2)
+
+        expected_path1 = os.path.join("output_folder", "file1_geolocated.csv")
+        expected_path2 = os.path.join("output_folder", "file2_geolocated.csv")
+        mock_csv_file.assert_any_call("input_folder/file1_observations.csv", expected_path1)
+        mock_csv_file.assert_any_call("input_folder/file2_observations.csv", expected_path2)
+
+    # --- Integration Test for join_and_pivot_geolocated ---
     @patch('data_processing.geolocate_process_inaturalist_data.glob.glob')
     @patch('data_processing.geolocate_process_inaturalist_data.pd.read_csv')
-    @patch('data_processing.geolocate_process_inaturalist_data.pd.DataFrame.to_csv')
-    @patch('data_processing.geolocate_process_inaturalist_data.datetime')
-    def test_join_and_pivot_data(self, mock_datetime, mock_to_csv, mock_read_csv, mock_glob, mock_join):
-        """Tests that files are joined, pivoted, and saved correctly."""
-        # Set a fixed date for today's date to make the date range predictable
-        mock_datetime.today.return_value = pd.to_datetime('2016-01-02')
-
-        # Mock glob to return a list of fake geolocated files
-        mock_glob.return_value = ["test_folder/species_A_geolocated.csv", "test_folder/species_B_geolocated.csv"]
-        
-        # Mock the DataFrames that read_csv will return for each file
+    def test_join_and_pivot_geolocated(self, mock_read_csv, mock_glob):
+        """Tests join_and_pivot_geolocated combines and pivots correctly."""
+        mock_glob.return_value = ["input_folder/species_A_geolocated.csv", "input_folder/species_B_geolocated.csv"]
         mock_read_csv.side_effect = [
-            # Data for species A
-            pd.DataFrame({
-                'Country': ['US', 'US'],
-                'observed_on': ['2016-01-01', '2016-01-02'],
-            }),
-            # Data for species B
-            pd.DataFrame({
-                'Country': ['FR'],
-                'observed_on': ['2016-01-01'],
-            }),
+            pd.DataFrame({'Country':['US','US'], 'observed_on':['2016-01-01','2016-01-02']}),
+            pd.DataFrame({'Country':['FR'], 'observed_on':['2016-01-01']})
         ]
 
-        # Execute the function
-        final_df = join_and_pivot_data("test_folder")
-        
-        # Verify that read_csv was called twice
-        self.assertEqual(mock_read_csv.call_count, 2)
-        
-        # Create the expected final DataFrame to compare against
-        expected_data = {
-            'Scientific Name': ['species A', 'species B'],
-            'Country': ['US', 'FR'],
-            '2016-01-01': [1, 1],
-            '2016-01-02': [1, 0]
-        }
-        expected_df = pd.DataFrame(expected_data).sort_values(by=['Scientific Name', 'Country']).reset_index(drop=True)
+        final_df = join_and_pivot_geolocated("input_folder", start_date='2016-01-01', end_date='2016-01-02')
 
-        # Set the column name attribute on the expected DataFrame to match the pivot_table output
-        expected_df.columns.name = 'date_str'
+        # Check structure
+        self.assertIn('Scientific Name', final_df.columns)
+        self.assertIn('Country', final_df.columns)
+        self.assertIn('2016-01-01', final_df.columns)
+        self.assertIn('2016-01-02', final_df.columns)
+        
+        # Check we have two rows (one for each species-country combo)
+        self.assertEqual(len(final_df), 2)
+        
+        # Check specific values
+        species_a_row = final_df[final_df['Scientific Name'] == 'species A']
+        self.assertEqual(species_a_row['Country'].iloc[0], 'US')
+        self.assertEqual(species_a_row['2016-01-01'].iloc[0], 1)
+        self.assertEqual(species_a_row['2016-01-02'].iloc[0], 1)
+        
+        species_b_row = final_df[final_df['Scientific Name'] == 'species B']
+        self.assertEqual(species_b_row['Country'].iloc[0], 'FR')
+        self.assertEqual(species_b_row['2016-01-01'].iloc[0], 1)
+        self.assertEqual(species_b_row['2016-01-02'].iloc[0], 0)
 
-        # Assert that the output DataFrame matches the expected DataFrame, ignoring dtype
-        pd.testing.assert_frame_equal(final_df, expected_df, check_dtype=False)
+if __name__ == "__main__":
+    unittest.main()

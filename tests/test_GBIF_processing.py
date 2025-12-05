@@ -1,8 +1,9 @@
 # tests/test_GBIF_processing.py
 import pandas as pd
 import pytest
-from unittest.mock import patch
-import sys, os
+from unittest.mock import patch, MagicMock
+import sys
+import os
 
 # Add src folder to path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
@@ -14,81 +15,134 @@ INPUT_FILE = "GBIF_species_occurrences_EU.csv"
 OUTPUT_FILE = "GBIF_Observations_2016-present_final_test.csv"
 FAILED_OUTPUT_FILE = "failed_parse_dates_2016-now_test.csv"
 
+
 # --- Unit test for parse_event_date ---
 def test_parse_event_date():
+    """Test the parse_event_date function with various input formats."""
     assert pd.Timestamp('2023-01-01 00:00:00') == parse_event_date('2023-01-01')
     assert pd.Timestamp('2023-01-01 15:30:00') == parse_event_date('2023-01-01T15:30:00')
     assert pd.Timestamp('2023-01-01 00:00:00') == parse_event_date('2023-01-01/2023-01-01T12:00:00')
-    assert pd.isna(parse_event_date('2023-01-01/2023-01-02T12:00:00'))
+    assert pd.isna(parse_event_date('2023-01-01/2023-01-02T12:00:00'))  # Range > 24 hours
     assert pd.isna(parse_event_date('Not a date'))
     assert pd.isna(parse_event_date(float('nan')))
+    assert pd.isna(parse_event_date(None))
+
 
 # --- Integration test for process_gbif_data ---
 @patch('data_processing.process_GBIF_observations.pd.read_csv')
-@patch('data_processing.process_GBIF_observations.pd.DataFrame.to_csv')
-def test_process_gbif_data(mock_to_csv, mock_read_csv):
+@patch('data_processing.process_GBIF_observations.tqdm.pandas')
+@patch('builtins.print')  # Suppress print statements during testing
+def test_process_gbif_data(mock_print, mock_tqdm_pandas, mock_read_csv):
+    """Test the complete GBIF data processing pipeline."""
+    
     # --- Mock input DataFrame ---
     mock_input_df = pd.DataFrame({
-        'species': ['A', 'A', 'B', 'A', 'B', 'C'],
+        'species': ['Species A', 'Species A', 'Species B', 'Species A', 'Species B', 'Species C'],
         'country': ['US', 'US', 'US', 'FR', 'FR', 'FR'],
-        'eventDate': ['2023-01-01', '2023-01-01T12:00:00', '2023-01-01',
-                      '2023-01-02', '2023-01-02', 'Invalid Date'],
+        'eventDate': [
+            '2023-01-01', 
+            '2023-01-01T12:00:00', 
+            '2023-01-01',
+            '2023-01-02', 
+            '2023-01-02', 
+            'Invalid Date'
+        ],
         'other_data': ['x', 'y', 'z', 'a', 'b', 'c']
     })
     mock_read_csv.return_value = mock_input_df
 
-    # Patch progress_apply to behave like normal apply
-    pd.Series.progress_apply = pd.Series.apply
+    # Make progress_apply redirect to regular apply
+    def mock_progress_apply(func, *args, **kwargs):
+        # 'self' is bound when this is called as a method
+        return mock_input_df["raw_eventDate"].apply(func, *args, **kwargs)
+    
+    # Patch progress_apply on the Series instance using setattr
+    original_apply = pd.Series.apply
+    pd.Series.progress_apply = lambda self, func, *args, **kwargs: self.apply(func, *args, **kwargs)
+    
+    try:
+        # --- Run processing ---
+        result_df = process_gbif_data(
+            input_file=INPUT_FILE,
+            output_file=OUTPUT_FILE,
+            failed_output_file=FAILED_OUTPUT_FILE,
+            start_date='2023-01-01',
+            end_date='2023-01-02'
+        )
 
-    # --- Run processing ---
-    process_gbif_data(INPUT_FILE, OUTPUT_FILE, FAILED_OUTPUT_FILE)
+        # --- Assertions ---
+        mock_read_csv.assert_called_once_with(INPUT_FILE, low_memory=False)
 
-    # --- Assertions ---
-    mock_read_csv.assert_called_once_with(INPUT_FILE, low_memory=False)
-    assert mock_to_csv.call_count == 2
+        # --- Check returned DataFrame structure ---
+        assert isinstance(result_df, pd.DataFrame)
+        assert 'Scientific Name' in result_df.columns
+        assert 'Country' in result_df.columns
+        assert '2023-01-01' in result_df.columns
+        assert '2023-01-02' in result_df.columns
 
-    # --- Failed parses file ---
-    failed_call = mock_to_csv.call_args_list[0]
-    failed_path = failed_call.args[0]
-    failed_df = failed_call._mock_parent  # not needed for content check
-    assert failed_path == FAILED_OUTPUT_FILE
+        # --- Check data integrity ---
+        def get_count(df, species, country, date):
+            """Helper function to get count for specific species/country/date."""
+            row = df[(df['Scientific Name'] == species) & (df['Country'] == country)]
+            if row.empty or date not in df.columns:
+                return 0
+            return int(row[date].iloc[0])
 
-    # --- Final pivot file ---
-    pivot_call = mock_to_csv.call_args_list[1]
-    pivot_path = pivot_call.args[0]
-    pivot_df = pivot_call._mock_parent  # DataFrame is actually not in args
-    assert pivot_path == OUTPUT_FILE
+        # Verify observation counts
+        assert get_count(result_df, 'Species A', 'US', '2023-01-01') == 2
+        assert get_count(result_df, 'Species B', 'US', '2023-01-01') == 1
+        assert get_count(result_df, 'Species A', 'FR', '2023-01-02') == 1
+        assert get_count(result_df, 'Species B', 'FR', '2023-01-02') == 1
+        assert get_count(result_df, 'Species C', 'FR', '2023-01-02') == 0  # Invalid date
 
-    # --- Check pivot table structure and counts ---
-    # We can reconstruct the pivot table manually for test
-    df_valid = mock_input_df[mock_input_df['eventDate'] != 'Invalid Date'].copy()
-    df_valid['parsed_eventDate'] = df_valid['eventDate'].apply(parse_event_date)
-    df_valid['date_str'] = df_valid['parsed_eventDate'].dt.strftime('%Y-%m-%d')
+        # --- Verify date range completeness ---
+        date_columns = [col for col in result_df.columns if col not in ['Scientific Name', 'Country']]
+        assert date_columns == ['2023-01-01', '2023-01-02']
 
-    grouped = df_valid.groupby(['species', 'country', 'date_str']).size().reset_index(name='count')
-    pivot_expected = grouped.pivot_table(
-        index=['species', 'country'],
-        columns='date_str',
-        values='count',
-        fill_value=0
-    ).reset_index()
+        # --- Verify species-country combinations ---
+        expected_combinations = [
+            ('Species A', 'FR'),
+            ('Species A', 'US'),
+            ('Species B', 'FR'),
+            ('Species B', 'US')
+        ]
+        actual_combinations = list(result_df[['Scientific Name', 'Country']].itertuples(index=False, name=None))
+        assert sorted(actual_combinations) == sorted(expected_combinations)
+        
+    finally:
+        # Clean up: remove progress_apply
+        if hasattr(pd.Series, 'progress_apply'):
+            delattr(pd.Series, 'progress_apply')
 
-    # Rename columns to match script output
-    pivot_expected.rename(columns={'species': 'Scientific Name', 'country': 'Country'}, inplace=True)
 
-    # Check columns
-    for col in ['Scientific Name', 'Country', '2023-01-01', '2023-01-02']:
-        assert col in pivot_expected.columns
+def test_process_gbif_data_file_not_found():
+    """Test that process_gbif_data handles missing files gracefully."""
+    with patch('builtins.print'):
+        result = process_gbif_data(
+            input_file="nonexistent_file.csv",
+            output_file=OUTPUT_FILE
+        )
+    
+    assert result.empty
 
-    # Check counts
-    def get_count(df, species, country, date):
-        if date not in df.columns:
-            return 0
-        row = df[(df['Scientific Name']==species) & (df['Country']==country)]
-        return row[date].iloc[0] if not row.empty else 0
 
-    assert get_count(pivot_expected, 'A', 'US', '2023-01-01') == 2
-    assert get_count(pivot_expected, 'B', 'US', '2023-01-01') == 1
-    assert get_count(pivot_expected, 'A', 'FR', '2023-01-02') == 1
-    assert get_count(pivot_expected, 'B', 'FR', '2023-01-02') == 1
-    assert get_count(pivot_expected, 'C', 'FR', '2023-01-02') == 0
+def test_parse_event_date_timezone_handling():
+    """Test that timezone information is properly removed."""
+    # Date with timezone
+    date_with_tz = '2023-01-01T12:00:00+02:00'
+    parsed = parse_event_date(date_with_tz)
+    
+    assert not pd.isna(parsed)
+    assert parsed.tzinfo is None  # Should be timezone-naive
+
+
+def test_parse_event_date_edge_cases():
+    """Test edge cases for date range parsing."""
+    # Exactly 24 hours - should be accepted
+    assert not pd.isna(parse_event_date('2023-01-01T00:00:00/2023-01-02T00:00:00'))
+    
+    # Just over 24 hours - should be rejected
+    assert pd.isna(parse_event_date('2023-01-01T00:00:00/2023-01-02T00:00:01'))
+    
+    # Malformed range
+    assert pd.isna(parse_event_date('2023-01-01/2023-01-02/2023-01-03'))
