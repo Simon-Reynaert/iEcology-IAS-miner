@@ -18,6 +18,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.autosummary',
     'myst_nb', # to support Jupyter Notebooks
+    'nbsphinx', # to support Jupyter Notebooks
 ]
 
 # Autosummary settings
@@ -33,6 +34,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 #notebook output included
 nb_execution_mode="off"
+nb_execute = 'never'
 
 source_suffix = {
     '.rst': 'restructuredtext',
