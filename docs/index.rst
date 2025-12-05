@@ -22,13 +22,13 @@ Installation
    pip install -r requirements.txt
 
 Demonstrations
-===========
+==============
 
 .. toctree::
    :maxdepth: 1
    
-   scripts/scripts/workflow_demonstration
-   scripts/scripts/Demonstration_flickr_img_to_obs
+   workflow_demonstration
+   Demonstration_flickr_img_to_obs
 
 Contents
 ========
