@@ -27,9 +27,9 @@ Demonstrations
 .. toctree::
    :maxdepth: 1
    
-   scripts/workflow_demonstration
-   scripts/Demonstration_flickr_img_to_obs
-   
+   scripts/scripts/workflow_demonstration
+   scripts/scripts/Demonstration_flickr_img_to_obs
+
 Contents
 ========
 
